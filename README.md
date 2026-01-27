@@ -10,18 +10,14 @@ This application uses a modern **Backend-for-Frontend (BFF)** style architecture
 
 ```mermaid
 graph TD
-    User((User)) -->|Browser| Frontend[React + Vite Frontend]
+    User["User"] -->|Browser| Frontend["React + Vite Frontend"]
     
-    subgraph "Authentication"
-        Frontend -->|Login Redirect| Keycloak[Keycloak IDP]
-        Keycloak -->|JWT Token| Frontend
-    end
+    Frontend -->|Login Redirect| Keycloak["Keycloak IDP"]
+    Keycloak -->|JWT Token| Frontend
 
-    subgraph "Application Logic"
-        Frontend -->|API Request (Token + TenantID)| Backend[NestJS Backend API]
-        Backend -->|Verify Token| Keycloak
-        Backend -->|Read/Write Data| Database[(Supabase PostgreSQL)]
-    end
+    Frontend -->|API Request| Backend["NestJS Backend API"]
+    Backend -->|Verify Token| Keycloak
+    Backend -->|Read/Write Data| Database[("Supabase PostgreSQL")]
 ```
 
 ---
