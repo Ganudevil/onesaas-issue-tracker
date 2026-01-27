@@ -6,11 +6,12 @@ This guide helps you set up automated deployments using GitLab CI/CD.
 
 ## 📋 Current Configuration
 
-Your pipeline is configured with **Option 1: Vercel + Railway** (recommended)
+Your pipeline is configured with **Vercel for both Frontend and Backend** (100% FREE!)
 
 - ✅ **Frontend** → Vercel
-- ✅ **Backend** → Railway
+- ✅ **Backend** → Vercel
 - 🔄 **Auto-deployment on push to `main`** (currently manual, can be automated)
+- 💰 **Cost**: $0/month (Free tier)
 
 ---
 
@@ -20,7 +21,7 @@ Go to your GitLab project: **Settings → CI/CD → Variables**
 
 Click **"Add variable"** and add the following:
 
-### For Vercel Deployment (Frontend)
+### For Vercel Deployment (Frontend & Backend)
 
 | Key | Value | Protected | Masked |
 |-----|-------|-----------|--------|
@@ -32,26 +33,6 @@ Click **"Add variable"** and add the following:
 3. Name it "GitLab CI/CD"
 4. Copy the token
 5. Paste it in GitLab CI/CD Variables
-
-### For Railway Deployment (Backend)
-
-| Key | Value | Protected | Masked |
-|-----|-------|-----------|--------|
-| `RAILWAY_TOKEN` | Your Railway token | ✅ | ✅ |
-
-**How to get RAILWAY_TOKEN:**
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Login
-railway login
-
-# Get token
-railway whoami
-```
-
-Or get it from: [Railway Dashboard → Account Settings → Tokens](https://railway.app/account/tokens)
 
 ### Environment Variables for Your Apps
 
@@ -96,38 +77,41 @@ vercel
 
 This creates a new Vercel project. Copy the project URL for later.
 
-### Set up Railway Project
+### Set up Vercel for Backend
 
 ```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-# Login
-railway login
-
 # Go to backend directory
-cd backend-reference
+cd f:\onesaas-issue-tracker-v.g1\backend-reference
 
-# Initialize Railway project
-railway init
+# Deploy backend to Vercel
+vercel
 
 # Follow the prompts:
-# - Project name: onesaas-issue-tracker-backend
-
-# Link the project
-railway link
+# - Set up and deploy? Yes
+# - Which scope? Your account
+# - Link to existing project? No
+# - Project name? onesaas-backend
+# - Directory? ./
 ```
 
-### Add Environment Variables to Railway
+### Add Environment Variables to Vercel Backend
 
-```bash
-# Set environment variables
-railway variables set SUPABASE_URL=your-supabase-url
-railway variables set SUPABASE_KEY=your-supabase-key
-railway variables set JWT_SECRET=your-jwt-secret
-railway variables set KEYCLOAK_URL=your-keycloak-url
-railway variables set PORT=3001
+After deploying, add environment variables in Vercel dashboard:
+
+1. Go to https://vercel.com/dashboard
+2. Select your backend project
+3. Go to **Settings → Environment Variables**
+4. Add these variables:
+
 ```
+SUPABASE_URL=your-supabase-url
+SUPABASE_KEY=your-supabase-key
+JWT_SECRET=your-jwt-secret
+KEYCLOAK_URL=your-keycloak-url
+PORT=3000
+```
+
+5. Redeploy: `vercel --prod`
 
 ---
 
@@ -177,8 +161,8 @@ git push gitlab main
 3. Watch the pipeline run:
    - ✅ Build Frontend
    - ✅ Build Backend
-   - 🔵 Deploy to Vercel (manual trigger)
-   - 🔵 Deploy to Railway (manual trigger)
+   - 🔵 Deploy Frontend to Vercel (manual trigger)
+   - 🔵 Deploy Backend to Vercel (manual trigger)
 
 4. Click the "Play" button to deploy manually
 
