@@ -142,7 +142,7 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                 </div>
 
                 <div className="pt-4 flex justify-end space-x-3">
-                    <Button type="button" variant="outline" className="text-red-500 border-red-200 hover:bg-red-50" onClick={async () => {
+                    <Button type="button" variant="secondary" className="text-red-500 border-red-200 hover:bg-red-50" onClick={async () => {
                         if (!token) return;
                         try {
                             setLoading(true);

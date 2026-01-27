@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import NovuInbox from './NovuInbox';
+import { NovuInbox } from './NovuInbox';
 
 const meta: Meta<typeof NovuInbox> = {
     title: 'Components/NovuInbox',

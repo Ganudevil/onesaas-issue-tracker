@@ -26,7 +26,7 @@ export function NovuInbox() {
         <NovuProvider
             subscriberId={user.id}
             applicationIdentifier={appIdentifier}
-            initialFetchedNotifications={[]}
+
         >
             <CustomInbox />
         </NovuProvider>
@@ -109,7 +109,7 @@ function CustomInbox() {
                                 }
                             }}
                             showUserPreferences={false}
-                            header={() => null}
+                            header={() => <></>}
                         />
                     </div>
                 </div>

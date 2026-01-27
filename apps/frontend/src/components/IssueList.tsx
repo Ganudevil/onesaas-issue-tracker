@@ -14,7 +14,7 @@ interface IssueListProps {
 }
 
 export const IssueList: React.FC<IssueListProps> = ({ onNavigate, onlyMyIssues = false }) => {
-    const { user, token, tenantId } = useAuthStore();
+    const { user, token, tenantId, role } = useAuthStore();
     const [users, setUsers] = useState<User[]>([]);
 
     // Use generated hook for issues
@@ -45,8 +45,8 @@ export const IssueList: React.FC<IssueListProps> = ({ onNavigate, onlyMyIssues =
         return issues;
     }, [issues, onlyMyIssues, user]);
 
-    const canCreate = user?.role === UserRole.ADMIN || user?.role === UserRole.MEMBER;
-    const canDelete = user?.role === UserRole.ADMIN;
+    const canCreate = role === UserRole.ADMIN || role === UserRole.MEMBER;
+    const canDelete = role === UserRole.ADMIN;
 
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this issue?')) return;
