@@ -1,0 +1,15 @@
+{
+    "directAccessGrantsEnabled":  true,
+    "clientId":  "issue-tracker",
+    "enabled":  true,
+    "rootUrl":  "http://localhost:3000",
+    "webOrigins":  [
+                       "*"
+                   ],
+    "redirectUris":  [
+                         "http://localhost:3000/*"
+                     ],
+    "standardFlowEnabled":  true,
+    "protocol":  "openid-connect",
+    "publicClient":  true
+}

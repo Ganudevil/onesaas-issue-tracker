@@ -1,0 +1,207 @@
+services:
+  # ============================================================================
+  # KEYCLOAK - Authentication & Authorization  
+  # ============================================================================
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.0
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_PORT: 8080
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KC_LOG_LEVEL: info
+    ports:
+      - "8080:8080"
+    depends_on:
+      keycloak-postgres:
+        condition: service_healthy
+    networks:
+      - onesaas-network
+
+  keycloak-postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_password
+    volumes:
+      - keycloak_postgres_data:/var/lib/postgresql/data
+    networks:
+      - onesaas-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U keycloak" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # SUPABASE - Backend as a Service
+  # ============================================================================
+  supabase-db:
+    image: supabase/postgres:15.1.0.64
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf -c log_min_messages=fatal
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "54322:5432"
+    volumes:
+      - supabase_db_data:/var/lib/postgresql/data
+      - ./supabase/schema.sql:/docker-entrypoint-initdb.d/00-initial-schema.sql
+    networks:
+      onesaas-network:
+        aliases:
+          - db
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  supabase-auth:
+    image: supabase/gotrue:v2.132.3
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:postgres@supabase-db:5432/postgres?search_path=auth
+      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_API_EXTERNAL_URL: http://localhost:3000
+      API_EXTERNAL_URL: http://localhost:3000
+      GOTRUE_URI_ALLOW_LIST: "*"
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_SMTP_ADMIN_EMAIL: admin@example.com
+      GOTRUE_SMTP_HOST: supabase-mail
+      GOTRUE_SMTP_PORT: 2500
+      GOTRUE_SMTP_USER: fake_mail_user
+      GOTRUE_SMTP_PASS: fake_mail_password
+      GOTRUE_SMTP_SENDER_NAME: Admin
+    networks:
+      - onesaas-network
+
+  supabase-rest:
+    image: postgrest/postgrest:v11.2.0
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@supabase-db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage,graphql_public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCKS: "false"
+    networks:
+      - onesaas-network
+
+  supabase-realtime:
+    image: supabase/realtime:v2.25.22
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      # APP_NAME: "onesaas"
+      DB_HOST: supabase-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+      DB_AFTER_CONNECT_QUERY: 'SET search_path TO _realtime'
+      DB_ENC_KEY: ${JWT_SECRET}
+      API_JWT_SECRET: ${JWT_SECRET}
+      SECRET_KEY_BASE: ${JWT_SECRET}
+      ERL_AFLAGS: "-proto_dist inet_tcp"
+      ENABLE_ROUTING: "true"
+    networks:
+      - onesaas-network
+
+  supabase-storage:
+    image: supabase/storage-api:v0.43.12
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      ANON_KEY: ${SUPABASE_ANON_KEY}
+      SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      POSTGREST_URL: http://supabase-rest:3000
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgres://postgres:postgres@supabase-db:5432/postgres
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: stub
+      GLOBAL_S3_BUCKET: stub
+    volumes:
+      - supabase_storage_data:/var/lib/storage
+    networks:
+      - onesaas-network
+
+  supabase-meta:
+    image: supabase/postgres-meta:v0.68.0
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      PG_META_PORT: 8080
+      PG_META_DB_HOST: supabase-db
+      PG_META_DB_PORT: 5432
+      PG_META_DB_NAME: postgres
+      PG_META_DB_USER: postgres
+      PG_META_DB_PASSWORD: postgres
+    networks:
+      - onesaas-network
+
+  supabase-studio:
+    image: supabase/studio:latest
+    environment:
+      STUDIO_PG_META_URL: http://supabase-meta:8080
+      POSTGRES_PASSWORD: postgres
+      SUPABASE_URL: http://supabase-kong:8000
+      SUPABASE_PUBLIC_URL: http://localhost:54321
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+    ports:
+      - "54324:3000"
+    networks:
+      - onesaas-network
+
+  supabase-kong:
+    image: kong:2.8.1
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth,acl
+    volumes:
+      - ./supabase/kong.yml:/var/lib/kong/kong.yml
+    ports:
+      - "54321:8000"
+      - "54323:8443"
+    networks:
+      - onesaas-network
+
+networks:
+  onesaas-network:
+    driver: bridge
+
+volumes:
+  keycloak_postgres_data:
+  supabase_db_data:
+  supabase_storage_data:

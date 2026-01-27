@@ -1,0 +1,693 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/users/by-email": {
+      "get": {
+        "operationId": "UsersController_getUserByEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tenant-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "UsersController_getAllUsers",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [
+          {
+            "name": "x-tenant-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "operationId": "UsersController_getUserById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tenant-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/users/debug-setup-test": {
+      "get": {
+        "operationId": "UsersController_debugTest",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/users/{email}/role": {
+      "patch": {
+        "operationId": "UsersController_updateRole",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tenant-id",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/issues": {
+      "get": {
+        "operationId": "IssuesController_findAll",
+        "summary": "Get all issues",
+        "description": "Retrieve a list of all issues for the current tenant",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of issues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IssueResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "IssuesController_create",
+        "summary": "Create new issue",
+        "description": "Create a new issue with the provided data",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIssueDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Issue created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/issues/{id}": {
+      "get": {
+        "operationId": "IssuesController_findOne",
+        "summary": "Get issue by ID",
+        "description": "Retrieve a specific issue by its UUID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Issue UUID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Issue found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "IssuesController_update",
+        "summary": "Update issue",
+        "description": "Update an existing issue by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Issue UUID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIssueDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Issue updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IssueResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "IssuesController_delete",
+        "summary": "Delete issue",
+        "description": "Delete an issue by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Issue UUID",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Issue deleted successfully"
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/issues/{id}/restore": {
+      "patch": {
+        "operationId": "IssuesController_restore",
+        "summary": "Restore issue",
+        "description": "Restore a soft-deleted issue",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/issues/{id}/comments": {
+      "get": {
+        "operationId": "IssuesController_getComments",
+        "summary": "Get comments",
+        "description": "Get all comments for an issue",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "IssuesController_addComment",
+        "summary": "Add comment",
+        "description": "Add a comment to an issue",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/issues/fix/schema": {
+      "get": {
+        "operationId": "IssuesController_fixSchema",
+        "summary": "Fix schema",
+        "description": "Fix missing columns in tenant schema",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "issues"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Issue Tracker API",
+    "description": "OneSAAS Issue Tracker API - OpenAPI 3.0 specification",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "issues",
+      "description": "Issue management endpoints"
+    },
+    {
+      "name": "health",
+      "description": "Health check endpoints"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Keycloak JWT token"
+      }
+    },
+    "schemas": {
+      "IssueResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "description": "Issue title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Issue description"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "in_progress",
+              "closed"
+            ],
+            "description": "Current status"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority level",
+            "example": "medium"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Creator user ID",
+            "format": "uuid"
+          },
+          "assignedTo": {
+            "type": "string",
+            "description": "Assigned user ID",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last update timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "status",
+          "priority",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateIssueDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Issue title",
+            "minLength": 3,
+            "maxLength": 120,
+            "example": "Fix login button not working"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the issue",
+            "example": "The login button on the homepage does not respond when clicked."
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the issue",
+            "enum": [
+              "open",
+              "in_progress",
+              "closed"
+            ],
+            "default": "open"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "UUID of the user who created the issue",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "assignedTo": {
+            "type": "string",
+            "description": "UUID of the user assigned to this issue",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority of the issue",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "default": "medium"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "createdBy"
+        ]
+      },
+      "UpdateIssueDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Issue title",
+            "minLength": 3,
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description of the issue"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the issue",
+            "enum": [
+              "open",
+              "in_progress",
+              "closed"
+            ]
+          },
+          "assignedTo": {
+            "type": "string",
+            "description": "UUID of the user assigned to this issue"
+          },
+          "priority": {
+            "type": "string",
+            "description": "Priority of the issue",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          }
+        }
+      },
+      "CreateCommentDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Comment text"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Creator user ID",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "text",
+          "createdBy"
+        ]
+      }
+    }
+  }
+}

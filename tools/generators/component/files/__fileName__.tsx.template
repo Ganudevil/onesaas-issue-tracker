@@ -1,0 +1,13 @@
+import React from 'react';
+
+export interface <%= className %>Props {
+  // Add props here
+}
+
+export const <%= className %>: React.FC<<%= className %>Props> = (props) => {
+  return (
+    <div className="<%= fileName %>-container">
+      <h1><%= className %></h1>
+    </div>
+  );
+};

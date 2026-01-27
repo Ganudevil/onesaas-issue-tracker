@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "id": "component",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Component name"
+        },
+        "project": {
+            "type": "string",
+            "description": "Project name",
+            "default": "frontend"
+        },
+        "directory": {
+            "type": "string",
+            "description": "Directory to create component in"
+        },
+        "withStorybook": {
+            "type": "boolean",
+            "description": "Generate Storybook story",
+            "default": true
+        }
+    },
+    "required": [
+        "name"
+    ]
+}

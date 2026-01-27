@@ -1,0 +1,123 @@
+_format_version: "2.1"
+_transform: true
+
+consumers:
+  - username: anon
+    keyauth_credentials:
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlLWRlbW8iLCJpYXQiOjE3NjY3NDkwNjUsImV4cCI6MjA4MjEwOTA2NX0.6yXKigTOUu6y1vdojicdNuxznmbFqK80NCp6UhyvfFg
+  - username: service_role
+    keyauth_credentials:
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UtZGVtbyIsImlhdCI6MTc2Njc0OTA2NSwiZXhwIjoyMDgyMTA5MDY1fQ.aPqlmT5SGQv86JM7krJ9x7ll7CqtqjSpqSkhzal_r_I
+
+acls:
+  - consumer: anon
+    group: anon
+  - consumer: service_role
+    group: admin
+
+services:
+  - name: auth-v1-open
+    url: http://supabase-auth:9999/verify
+    routes:
+      - name: auth-v1-open
+        strip_path: true
+        paths:
+          - /auth/v1/verify
+    plugins:
+      - name: cors
+  
+  - name: auth-v1-open-callback
+    url: http://supabase-auth:9999/callback
+    routes:
+      - name: auth-v1-open-callback
+        strip_path: true
+        paths:
+          - /auth/v1/callback
+    plugins:
+      - name: cors
+
+  - name: auth-v1-open-authorize
+    url: http://supabase-auth:9999/authorize
+    routes:
+      - name: auth-v1-open-authorize
+        strip_path: true
+        paths:
+          - /auth/v1/authorize
+    plugins:
+      - name: cors
+
+  - name: auth-v1
+    _comment: "GoTrue: /auth/v1/* -> http://supabase-auth:9999/*"
+    url: http://supabase-auth:9999/
+    routes:
+      - name: auth-v1-all
+        strip_path: true
+        paths:
+          - /auth/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: false
+
+  - name: rest-v1
+    _comment: "PostgREST: /rest/v1/* -> http://supabase-rest:3000/*"
+    url: http://supabase-rest:3000/
+    routes:
+      - name: rest-v1-all
+        strip_path: true
+        paths:
+          - /rest/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: true
+
+  - name: realtime-v1
+    _comment: "Realtime: /realtime/v1/* -> ws://supabase-realtime:4000/socket/*"
+    url: http://supabase-realtime:4000/socket/
+    routes:
+      - name: realtime-v1-all
+        strip_path: true
+        paths:
+          - /realtime/v1/
+    plugins:
+      - name: cors
+      - name: key-auth
+        config:
+          hide_credentials: false
+
+  - name: storage-v1
+    _comment: "Storage: /storage/v1/* -> http://supabase-storage:5000/*"
+    url: http://supabase-storage:5000/
+    routes:
+      - name: storage-v1-all
+        strip_path: true
+        paths:
+          - /storage/v1/
+    plugins:
+      - name: cors
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Language
+        - Content-Language
+        - Content-Type
+        - Authorization
+        - apikey
+        - X-Client-Info
+      credentials: true
+      max_age: 3600
