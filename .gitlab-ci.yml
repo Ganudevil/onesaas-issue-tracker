@@ -1,0 +1,273 @@
+########################################
+# GitLab CI/CD Pipeline Configuration
+# Multi-Method Deployment Support
+########################################
+
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  NODE_VERSION: "18"
+
+########################################
+# BUILD STAGE
+########################################
+
+build-frontend:
+  stage: build
+  image: node:${NODE_VERSION}
+  cache:
+    key: frontend-${CI_COMMIT_REF_SLUG}
+    paths:
+      - apps/frontend/node_modules/
+  script:
+    - echo "Building Frontend..."
+    - cd apps/frontend
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - apps/frontend/dist
+    expire_in: 1 hour
+  only:
+    - main
+    - develop
+
+build-backend:
+  stage: build
+  image: node:${NODE_VERSION}
+  cache:
+    key: backend-${CI_COMMIT_REF_SLUG}
+    paths:
+      - backend-reference/node_modules/
+  script:
+    - echo "Building Backend..."
+    - cd backend-reference
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - backend-reference/dist
+      - backend-reference/node_modules
+    expire_in: 1 hour
+  only:
+    - main
+    - develop
+
+########################################
+# TEST STAGE (Optional - Enable when you have tests)
+########################################
+
+# test-frontend:
+#   stage: test
+#   image: node:${NODE_VERSION}
+#   script:
+#     - cd apps/frontend
+#     - npm ci
+#     - npm run test
+#   only:
+#     - main
+#     - develop
+
+# test-backend:
+#   stage: test
+#   image: node:${NODE_VERSION}
+#   script:
+#     - cd backend-reference
+#     - npm ci
+#     - npm run test
+#   only:
+#     - main
+#     - develop
+
+########################################
+# DEPLOYMENT OPTIONS
+# Uncomment the method you want to use
+########################################
+
+# ==========================================
+# OPTION 1: Vercel + Railway (RECOMMENDED - CURRENTLY ACTIVE)
+# ==========================================
+
+deploy-to-vercel:
+  stage: deploy
+  image: node:${NODE_VERSION}
+  before_script:
+    - npm install -g vercel
+  script:
+    - cd apps/frontend
+    - echo "Deploying to Vercel..."
+    - vercel --token=$VERCEL_TOKEN --prod --yes
+  environment:
+    name: production-frontend
+    url: https://your-app.vercel.app
+  only:
+    - main
+  when: manual  # Change to 'on_success' for automatic deployment
+
+deploy-to-railway:
+  stage: deploy
+  image: node:${NODE_VERSION}
+  before_script:
+    - npm install -g @railway/cli
+  script:
+    - cd backend-reference
+    - echo "Deploying to Railway..."
+    - railway up --service backend
+  environment:
+    name: production-backend
+    url: https://your-backend.railway.app
+  only:
+    - main
+  when: manual  # Change to 'on_success' for automatic deployment
+
+# ==========================================
+# OPTION 2: GitLab Pages (Frontend Static Only)
+# Uncomment to deploy frontend to GitLab Pages
+# ==========================================
+
+# pages:
+#   stage: deploy
+#   dependencies:
+#     - build-frontend
+#   script:
+#     - mkdir -p public
+#     - cp -r apps/frontend/dist/* public/
+#   artifacts:
+#     paths:
+#       - public
+#   environment:
+#     name: gitlab-pages
+#     url: https://$CI_PROJECT_NAMESPACE.gitlab.io/$CI_PROJECT_NAME
+#   only:
+#     - main
+
+# ==========================================
+# OPTION 3: Docker Deployment
+# Uncomment to build and push Docker images
+# ==========================================
+
+# build-docker-frontend:
+#   stage: deploy
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   before_script:
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#   script:
+#     - cd apps/frontend
+#     - docker build -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA .
+#     - docker build -t $CI_REGISTRY_IMAGE/frontend:latest .
+#     - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
+#     - docker push $CI_REGISTRY_IMAGE/frontend:latest
+#   only:
+#     - main
+
+# build-docker-backend:
+#   stage: deploy
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   before_script:
+#     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#   script:
+#     - cd backend-reference
+#     - docker build -t $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA .
+#     - docker build -t $CI_REGISTRY_IMAGE/backend:latest .
+#     - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+#     - docker push $CI_REGISTRY_IMAGE/backend:latest
+#   only:
+#     - main
+
+# ==========================================
+# OPTION 4: VPS Deployment via SSH
+# Uncomment to deploy to your own VPS
+# ==========================================
+
+# deploy-to-vps-backend:
+#   stage: deploy
+#   image: debian:latest
+#   dependencies:
+#     - build-backend
+#   before_script:
+#     - apt-get update -qq && apt-get install -y -qq openssh-client rsync
+#     - eval $(ssh-agent -s)
+#     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan $DEPLOY_SERVER >> ~/.ssh/known_hosts
+#   script:
+#     - echo "Deploying Backend to VPS..."
+#     - rsync -avz --delete backend-reference/ $DEPLOY_USER@$DEPLOY_SERVER:/var/www/backend/
+#     - ssh $DEPLOY_USER@$DEPLOY_SERVER "cd /var/www/backend && npm ci --production && pm2 restart backend"
+#   environment:
+#     name: production-vps
+#   only:
+#     - main
+#   when: manual
+
+# deploy-to-vps-frontend:
+#   stage: deploy
+#   image: debian:latest
+#   dependencies:
+#     - build-frontend
+#   before_script:
+#     - apt-get update -qq && apt-get install -y -qq openssh-client rsync
+#     - eval $(ssh-agent -s)
+#     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan $DEPLOY_SERVER >> ~/.ssh/known_hosts
+#   script:
+#     - echo "Deploying Frontend to VPS..."
+#     - rsync -avz --delete apps/frontend/dist/ $DEPLOY_USER@$DEPLOY_SERVER:/var/www/frontend/
+#   environment:
+#     name: production-vps
+#   only:
+#     - main
+#   when: manual
+
+# ==========================================
+# OPTION 5: Netlify Deployment
+# Uncomment to deploy frontend to Netlify
+# ==========================================
+
+# deploy-to-netlify:
+#   stage: deploy
+#   image: node:${NODE_VERSION}
+#   dependencies:
+#     - build-frontend
+#   before_script:
+#     - npm install -g netlify-cli
+#   script:
+#     - cd apps/frontend
+#     - netlify deploy --prod --dir=dist --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID
+#   environment:
+#     name: production-netlify
+#     url: https://your-app.netlify.app
+#   only:
+#     - main
+#   when: manual
+
+########################################
+# NOTIFICATIONS (Optional)
+########################################
+
+# notify-success:
+#   stage: .post
+#   script:
+#     - echo "Deployment successful! 🎉"
+#   only:
+#     - main
+#   when: on_success
+
+# notify-failure:
+#   stage: .post
+#   script:
+#     - echo "Deployment failed! ❌"
+#   only:
+#     - main
+#   when: on_failure
