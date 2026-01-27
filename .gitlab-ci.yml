@@ -100,6 +100,12 @@ deploy-to-vercel:
   script:
     - cd apps/frontend
     - echo "Deploying to Vercel..."
+    - |
+      if [ -z "$VERCEL_TOKEN" ]; then
+        echo "⚠️ VERCEL_TOKEN not set. Skipping Vercel deployment."
+        echo "📝 To enable Vercel deployment, add VERCEL_TOKEN to GitLab CI/CD Variables"
+        exit 0
+      fi
     - vercel --token=$VERCEL_TOKEN --prod --yes
   environment:
     name: production-frontend
@@ -107,6 +113,7 @@ deploy-to-vercel:
   only:
     - main
   when: manual  # Change to 'on_success' for automatic deployment
+  allow_failure: true
 
 deploy-to-railway:
   stage: deploy
@@ -116,6 +123,12 @@ deploy-to-railway:
   script:
     - cd backend-reference
     - echo "Deploying to Railway..."
+    - |
+      if [ -z "$RAILWAY_TOKEN" ]; then
+        echo "⚠️ RAILWAY_TOKEN not set. Skipping Railway deployment."
+        echo "📝 To enable Railway deployment, add RAILWAY_TOKEN to GitLab CI/CD Variables"
+        exit 0
+      fi
     - railway up --service backend
   environment:
     name: production-backend
@@ -123,6 +136,7 @@ deploy-to-railway:
   only:
     - main
   when: manual  # Change to 'on_success' for automatic deployment
+  allow_failure: true
 
 # ==========================================
 # OPTION 2: GitLab Pages (Frontend Static Only)
