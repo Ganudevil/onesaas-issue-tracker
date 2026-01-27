@@ -115,24 +115,26 @@ deploy-to-vercel:
   when: manual  # Change to 'on_success' for automatic deployment
   allow_failure: true
 
-deploy-to-railway:
+deploy-backend-to-vercel:
   stage: deploy
   image: node:${NODE_VERSION}
+  dependencies:
+    - build-backend
   before_script:
-    - npm install -g @railway/cli
+    - npm install -g vercel
   script:
     - cd backend-reference
-    - echo "Deploying to Railway..."
+    - echo "Deploying Backend to Vercel..."
     - |
-      if [ -z "$RAILWAY_TOKEN" ]; then
-        echo "⚠️ RAILWAY_TOKEN not set. Skipping Railway deployment."
-        echo "📝 To enable Railway deployment, add RAILWAY_TOKEN to GitLab CI/CD Variables"
+      if [ -z "$VERCEL_TOKEN" ]; then
+        echo "⚠️ VERCEL_TOKEN not set. Skipping Backend deployment."
+        echo "📝 To enable Backend deployment, add VERCEL_TOKEN to GitLab CI/CD Variables"
         exit 0
       fi
-    - railway up --service backend
+    - vercel --token=$VERCEL_TOKEN --prod --yes
   environment:
     name: production-backend
-    url: https://your-backend.railway.app
+    url: https://your-backend.vercel.app
   only:
     - main
   when: manual  # Change to 'on_success' for automatic deployment
