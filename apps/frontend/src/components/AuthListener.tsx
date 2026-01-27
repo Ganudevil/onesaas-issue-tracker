@@ -45,12 +45,13 @@ export function AuthListener() {
                     // We need the token from store or auth.user
                     if (auth.user?.access_token) {
                         // We need to import db. Let's add the import.
-                        await import('../services/db').then(m => m.db.ensureUserExists({
-                            id: user.id,
-                            email: user.email,
-                            displayName: user.name || user.email,
-                            role: 'member' // Or derive from token again
-                        }, auth.user!.access_token, tenantId));
+                        await import('../services/db').then(m => m.db.ensureUserExists(
+                            user.id,
+                            user.email,
+                            'member', // Or derive from token again
+                            user.name || user.email,
+                            auth.user!.access_token
+                        ));
                     }
                 } catch (e) {
                     console.error("[AuthListener] Failed to sync user to tenant", e);
