@@ -1,9 +1,9 @@
-
 'use client';
 
 import { useAuth } from 'react-oidc-context';
 import { useEffect } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
+import { UserRole } from '../types';
 
 export function AuthListener() {
     const auth = useAuth();
@@ -48,7 +48,7 @@ export function AuthListener() {
                         await import('../services/db').then(m => m.db.ensureUserExists(
                             user.id,
                             user.email,
-                            'member', // Or derive from token again
+                            UserRole.MEMBER, // Or derive from token again
                             user.name || user.email,
                             auth.user!.access_token
                         ));

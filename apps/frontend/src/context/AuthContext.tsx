@@ -11,7 +11,7 @@ interface AuthContextType {
     signup: () => void;
     logout: () => void;
     isAuthenticated: boolean;
-    tenantId: string;
+    tenantId: string | null;
     isLoading: boolean;
     token?: string;
     updateRole: (role: UserRole) => Promise<void>;
