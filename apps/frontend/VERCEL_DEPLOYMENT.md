@@ -177,6 +177,25 @@ To manually redeploy:
 
 ---
 
+## 🚀 How to Push Updates (Triggers Vercel)
+
+To update your app, simply push your changes to GitHub. Run these commands in your `onesaas-issue-tracker` folder:
+
+```bash
+# 1. Stage all changes
+git add .
+
+# 2. Commit your changes (replace "message" with what you changed)
+git commit -m "update: description of my changes"
+
+# 3. Push to GitHub (starts Vercel deployment automatically)
+git push origin main
+```
+
+> **Note:** You can check the deployment status in your Vercel Dashboard.
+
+---
+
 ## 📂 Project Structure for Vercel
 
 Your repository should look like this:
