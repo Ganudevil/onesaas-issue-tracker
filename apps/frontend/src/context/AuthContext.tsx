@@ -23,7 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Inner component that contains the shared logic
 const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({ children, auth }) => {
-    const { setRole, tenantId, setTenant } = useAuthStore();
+    const { setRole, tenantId, setTenant, setSession, clearSession } = useAuthStore();
     const [user, setUser] = useState<User | null>(null);
 
     // Wrapper to match interface if needed, or just expose setTenant directly
@@ -71,6 +71,19 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
                     if (dbUser) {
                         setUser(dbUser);
                         setRole(dbUser.role as any);
+
+                        // Sync to AuthStore Session
+                        const targetTenant = tenantId || 'tenant1';
+                        setSession(
+                            {
+                                id: dbUser.id || auth.user.profile.sub || '',
+                                email: dbUser.email,
+                                name: dbUser.displayName,
+                            },
+                            token || '',
+                            targetTenant,
+                            dbUser.role as any
+                        );
                     }
 
                 } catch (err) {
@@ -87,6 +100,7 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
                 }
             } else {
                 setUser(null);
+                clearSession();
                 setIsDbSyncing(false);
             }
         };

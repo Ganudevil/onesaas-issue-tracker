@@ -5,7 +5,7 @@ import { AuthProvider as OidcAuthProvider } from 'react-oidc-context';
 import { RealAuthProvider, MockAppAuthProvider } from '@/context/AuthContext';
 import { keycloakConfig } from '@/auth/keycloakConfig';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthListener } from '@/components/AuthListener';
+// AuthListener import removed
 import { MockAuthProvider } from '@/auth/MockAuthProvider';
 
 const queryClient = new QueryClient();
@@ -29,7 +29,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         return (
             <MockAuthProvider>
                 <MockAppAuthProvider>
-                    <AuthListener />
                     <QueryClientProvider client={queryClient}>
                         {children}
                     </QueryClientProvider>
@@ -41,7 +40,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <OidcAuthProvider {...keycloakConfig}>
             <RealAuthProvider>
-                <AuthListener />
                 <QueryClientProvider client={queryClient}>
                     {children}
                 </QueryClientProvider>
