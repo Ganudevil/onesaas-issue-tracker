@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
 import { useAuth as useOidcAuth } from "react-oidc-context";
+import { useMockAuth } from "../auth/MockAuthProvider";
 import { db } from '../services/db';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -20,13 +21,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const auth = useOidcAuth();
+// Inner component that contains the shared logic
+const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({ children, auth }) => {
     const { setRole, tenantId, setTenant } = useAuthStore();
     const [user, setUser] = useState<User | null>(null);
-
-    // Remove local tenant state to avoid de-sync with Navbar/Store
-    // const [tenantId, _setTenantId] = useState(...) 
 
     // Wrapper to match interface if needed, or just expose setTenant directly
     const setTenantId = (id: string) => {
@@ -119,8 +117,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     if (auth.error) {
-        if (auth.error.message.includes("No matching state")) {
-            // Auto-recover from state mismatch
+        const errorMessage = auth.error.message || 'Unknown authentication error';
+
+        // Auto-recover from state mismatch
+        if (errorMessage.includes("No matching state")) {
             console.warn("State mismatch detected. Clearing storage and retrying...");
             localStorage.clear();
             sessionStorage.clear();
@@ -128,15 +128,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             return null;
         }
 
+        // Check if it's a network/connection error (Keycloak unreachable)
+        const isNetworkError = errorMessage.toLowerCase().includes('fetch') ||
+            errorMessage.toLowerCase().includes('network') ||
+            errorMessage.toLowerCase().includes('failed to fetch');
+
+        if (isNetworkError) {
+            return (
+                <div style={{ padding: '20px', color: '#d32f2f', maxWidth: '600px', margin: '40px auto', backgroundColor: '#fff3e0', borderRadius: '8px', border: '2px solid #ff9800' }}>
+                    <h1 style={{ margin: '0 0 16px 0', fontSize: '24px' }}>🔌 Connection Error</h1>
+                    <p style={{ marginBottom: '12px' }}>Unable to connect to authentication server.</p>
+                    <p style={{ marginBottom: '12px', fontWeight: 'bold' }}>
+                        This usually means the app is configured to use real Keycloak but it's not available.
+                    </p>
+                    <p style={{ marginBottom: '16px', color: '#666' }}>
+                        💡 <strong>Tip:</strong> Set <code style={{ backgroundColor: '#f5f5f5', padding: '2px 6px', borderRadius: '4px' }}>NEXT_PUBLIC_USE_MOCK=true</code> in your environment variables to use mock authentication instead.
+                    </p>
+                    <details style={{ marginBottom: '16px' }}>
+                        <summary style={{ cursor: 'pointer', marginBottom: '8px' }}>Technical Details</summary>
+                        <pre style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', overflow: 'auto' }}>{errorMessage}</pre>
+                    </details>
+                    <button onClick={() => {
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = '/';
+                    }} style={{
+                        padding: '12px 24px',
+                        backgroundColor: '#1976d2',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                    }}>
+                        Retry (Clear Cache & Go Home)
+                    </button>
+                </div>
+            );
+        }
+
+        // Generic error handling for other types of errors
         return (
-            <div style={{ padding: '20px', color: 'red' }}>
+            <div style={{ padding: '20px', color: 'red', maxWidth: '600px', margin: '40px auto' }}>
                 <h1>Authentication Error</h1>
-                <pre>{auth.error.message}</pre>
+                <pre style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '4px', overflow: 'auto' }}>{errorMessage}</pre>
                 <button onClick={() => {
                     localStorage.clear();
                     sessionStorage.clear();
                     window.location.href = '/';
-                }} style={{ padding: '10px', marginTop: '10px' }}>
+                }} style={{ padding: '10px', marginTop: '10px', cursor: 'pointer' }}>
                     Retry (Clear Cache & Go Home)
                 </button>
             </div>
@@ -169,6 +210,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             {children}
         </AuthContext.Provider>
     );
+};
+
+export const RealAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const auth = useOidcAuth();
+    return <AuthProviderInner auth={auth}>{children}</AuthProviderInner>;
+};
+
+export const MockAppAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const auth = useMockAuth();
+    return <AuthProviderInner auth={auth}>{children}</AuthProviderInner>;
 };
 
 export const useAuth = () => {

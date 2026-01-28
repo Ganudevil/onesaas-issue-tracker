@@ -1,5 +1,43 @@
 services:
   # ============================================================================
+  # APP SERVICES
+  # ============================================================================
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+      - VITE_KEYCLOAK_URL=http://localhost:8080
+      - VITE_KEYCLOAK_REALM=onesaas
+      - VITE_KEYCLOAK_CLIENT_ID=onesaas-frontend
+    depends_on:
+      - backend
+      - keycloak
+    networks:
+      - onesaas-network
+
+  backend:
+    build:
+      context: ./backend-reference
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - SUPABASE_URL=http://supabase-kong:8000
+      - SUPABASE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=onesaas
+    depends_on:
+      - supabase-kong
+      - keycloak
+    networks:
+      - onesaas-network
+  # ============================================================================
   # KEYCLOAK - Authentication & Authorization  
   # ============================================================================
   keycloak:
