@@ -11,17 +11,31 @@ import { MockAuthProvider } from '@/auth/MockAuthProvider';
 const queryClient = new QueryClient();
 
 // Detect if we should use Mock Mode
-// Uses mock mode when:
-// 1. NEXT_PUBLIC_KEYCLOAK_URL is missing (undefined/empty)
-// 2. NEXT_PUBLIC_KEYCLOAK_URL contains 'localhost'
-// 3. NEXT_PUBLIC_KEYCLOAK_URL is explicitly set to 'mock'
-// 4. NEXT_PUBLIC_USE_MOCK is explicitly set to 'true'
+// Detect if we should use Mock Mode
+// Logic: Default to Mock if:
+// 1. Explicitly requested via NEXT_PUBLIC_USE_MOCK='true'
+// 2. Keycloak URL is missing, empty, or 'undefined'
+// 3. Keycloak URL points to localhost (which won't work on Vercel)
+const keycloakUrl = process.env.NEXT_PUBLIC_KEYCLOAK_URL;
+const useMockEnv = process.env.NEXT_PUBLIC_USE_MOCK;
+
 const shouldUseMock =
-    !process.env.NEXT_PUBLIC_KEYCLOAK_URL ||
-    process.env.NEXT_PUBLIC_KEYCLOAK_URL === '' ||
-    process.env.NEXT_PUBLIC_KEYCLOAK_URL.includes('localhost') ||
-    process.env.NEXT_PUBLIC_KEYCLOAK_URL === 'mock' ||
-    process.env.NEXT_PUBLIC_USE_MOCK === 'true';
+    useMockEnv === 'true' ||
+    !keycloakUrl ||
+    keycloakUrl === '' ||
+    keycloakUrl === 'undefined' ||
+    keycloakUrl === 'null' ||
+    keycloakUrl === 'mock' ||
+    keycloakUrl.includes('localhost');
+
+if (typeof window !== 'undefined') {
+    console.log('[Providers] Auth Config Check:', {
+        shouldUseMock,
+        keycloakUrl: keycloakUrl || '(missing)',
+        useMockEnv: useMockEnv || '(missing)',
+        reason: shouldUseMock ? 'Using Mock Mode' : 'Using Real Keycloak'
+    });
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
     if (shouldUseMock) {
