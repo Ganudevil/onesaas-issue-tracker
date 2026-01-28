@@ -1,5 +1,3 @@
 {
-    "buildCommand": "cd apps/frontend && npm run build",
-    "installCommand": "cd apps/frontend && npm install --legacy-peer-deps",
-    "framework": null
+    "installCommand": "npm install --legacy-peer-deps"
 }
