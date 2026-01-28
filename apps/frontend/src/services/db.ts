@@ -176,4 +176,23 @@ class ApiDatabase implements IDatabase {
     }
 }
 
-export const db = new ApiDatabase();
+// Select DB implementation
+// Uses mock database when:
+// 1. NEXT_PUBLIC_API_URL is missing (undefined/empty)
+// 2. NEXT_PUBLIC_API_URL contains 'localhost'
+// 3. NEXT_PUBLIC_API_URL is explicitly set to 'mock'
+// 4. NEXT_PUBLIC_USE_MOCK is explicitly set to 'true'
+const shouldUseMock =
+    !process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL === '' ||
+    process.env.NEXT_PUBLIC_API_URL.includes('localhost') ||
+    process.env.NEXT_PUBLIC_API_URL === 'mock' ||
+    process.env.NEXT_PUBLIC_USE_MOCK === 'true';
+
+import { mockDb } from './mockDb';
+
+export const db: IDatabase = shouldUseMock ? mockDb : new ApiDatabase();
+
+if (shouldUseMock) {
+    console.warn('⚠️ [Mock Mode] Using Mock Database because NEXT_PUBLIC_API_URL is missing or local.');
+}
