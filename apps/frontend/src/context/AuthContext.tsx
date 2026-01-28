@@ -26,6 +26,11 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
     const { setRole, tenantId, setTenant, setSession, clearSession } = useAuthStore();
     const [user, setUser] = useState<User | null>(null);
 
+    // Defensive check
+    if (!auth) {
+        return null;
+    }
+
     // Wrapper to match interface if needed, or just expose setTenant directly
     const setTenantId = (id: string) => {
         setTenant(id);
@@ -82,7 +87,8 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
                             },
                             token || '',
                             targetTenant,
-                            dbUser.role as any
+                            targetTenant,
+                            dbUser.role as any // Type assertion for compatibility
                         );
                     }
 
@@ -177,6 +183,22 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
                         fontWeight: '500'
                     }}>
                         Retry (Clear Cache & Go Home)
+                    </button>
+                    <button onClick={() => {
+                        localStorage.setItem('onesaas_force_mock', 'true');
+                        window.location.reload();
+                    }} style={{
+                        padding: '12px 24px',
+                        backgroundColor: '#2e7d32',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        marginLeft: '10px'
+                    }}>
+                        ✅ Switch to Mock Mode (Fix This)
                     </button>
                 </div>
             );
