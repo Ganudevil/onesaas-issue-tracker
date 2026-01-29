@@ -11,6 +11,8 @@ export const keycloakConfig: AuthProviderProps = {
     response_type: "code",
     userStore: typeof window !== "undefined" ? new WebStorageStateStore({ store: window.localStorage }) : undefined,
     stateStore: typeof window !== "undefined" ? new WebStorageStateStore({ store: window.localStorage }) : undefined,
+    // Disable iframe checks to prevent infinite loops on browsers with strict cookie policies
+    checkLoginIframe: false,
     onSigninCallback: () => {
         window.history.replaceState({}, document.title, window.location.pathname);
     }

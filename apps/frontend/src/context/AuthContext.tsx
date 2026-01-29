@@ -144,8 +144,8 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
             console.warn("State mismatch detected. Clearing storage and retrying...");
             localStorage.clear();
             sessionStorage.clear();
-            window.location.href = '/';
-            return null;
+            // window.location.href = '/'; // DISABLED FOR DEBUGGING
+            // return null;
         }
 
         // Check if it's a network/connection error (Keycloak unreachable)
