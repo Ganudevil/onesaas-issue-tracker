@@ -2,11 +2,14 @@ import axios from 'axios';
 import { User } from 'oidc-client-ts';
 
 // Create a custom Axios instance
-// In Next.js, we proxy /issues to the backend via next.config.ts rewrites,
-// or we can point directly to localhost:3001. 
-// Pointing to 3001 is safer for Client Components to avoid Next.js server API limitations.
+// In production, we point directly to the backend URL.
+// In development, we use the /api proxy to avoid CORS/port issues.
+const baseURL = process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_API_URL
+    ? process.env.NEXT_PUBLIC_API_URL
+    : '/api';
+
 export const axiosInstance = axios.create({
-    baseURL: '/api',
+    baseURL,
 });
 
 // Request interceptor to add the specific Keycloak token to requests
