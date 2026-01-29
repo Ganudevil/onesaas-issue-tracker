@@ -7,16 +7,29 @@ export class DatabaseService implements OnModuleInit {
 
     constructor() {
         // Connect directly to Supabase PostgreSQL database
-        this.pool = new Pool({
-            host: 'localhost',
-            port: 54322, // Supabase PostgreSQL port from docker-compose
-            database: 'postgres',
-            user: 'postgres',
-            password: 'postgres', // Default Supabase local password
-            max: 20,
-            idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 60000,
-        });
+        if (process.env.DATABASE_URL) {
+            // Production / Render Connection
+            this.pool = new Pool({
+                connectionString: process.env.DATABASE_URL,
+                ssl: {
+                    rejectUnauthorized: false, // Required for many cloud DBs (Supabase/Render)
+                }
+            });
+            console.log('Database Service Initialized with DATABASE_URL');
+        } else {
+            // Localhost Fallback
+            this.pool = new Pool({
+                host: 'localhost',
+                port: 54322,
+                database: 'postgres',
+                user: 'postgres',
+                password: 'postgres',
+                max: 20,
+                idleTimeoutMillis: 30000,
+                connectionTimeoutMillis: 60000,
+            });
+            console.log('Database Service Initialized with Localhost Connection');
+        }
 
         console.log('Database Service Initialized with Direct PostgreSQL Connection');
     }
