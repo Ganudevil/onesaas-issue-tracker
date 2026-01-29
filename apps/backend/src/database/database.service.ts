@@ -9,6 +9,10 @@ export class DatabaseService implements OnModuleInit {
         // Connect directly to Supabase PostgreSQL database
         if (process.env.DATABASE_URL) {
             // Production / Render Connection
+            console.log('--- DATABASE CONFIGURATION DEBUG ---');
+            console.log('Mode: Production/Render');
+            console.log('DATABASE_URL is defined (Length: ' + process.env.DATABASE_URL.length + ')');
+
             this.pool = new Pool({
                 connectionString: process.env.DATABASE_URL,
                 ssl: {
@@ -18,6 +22,11 @@ export class DatabaseService implements OnModuleInit {
             console.log('Database Service Initialized with DATABASE_URL');
         } else {
             // Localhost Fallback
+            console.log('--- DATABASE CONFIGURATION DEBUG ---');
+            console.log('Mode: Localhost Fallback');
+            console.log('ERROR: DATABASE_URL environment variable is MISSING or EMPTY');
+            console.log('Current Env Vars:', Object.keys(process.env).join(', '));
+
             this.pool = new Pool({
                 host: 'localhost',
                 port: 54322,
