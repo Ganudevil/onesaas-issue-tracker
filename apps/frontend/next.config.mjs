@@ -9,12 +9,16 @@ const nextConfig = {
     },
     optimizeFonts: false,
     async rewrites() {
-        return [
-            {
-                source: '/api/:path*',
-                destination: 'http://localhost:3002/:path*',
-            },
-        ]
+        // Only apply rewrites in development to avoid localhost URLs in production
+        if (process.env.NODE_ENV === 'development') {
+            return [
+                {
+                    source: '/api/:path*',
+                    destination: 'http://localhost:3002/:path*',
+                },
+            ]
+        }
+        return []
     },
 };
 
