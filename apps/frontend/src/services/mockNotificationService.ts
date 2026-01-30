@@ -1,5 +1,3 @@
-import { Novu } from '@novu/node';
-
 // Mock notification service for client-side notifications
 class MockNotificationService {
     private static STORAGE_KEY = 'mock_notifications';
