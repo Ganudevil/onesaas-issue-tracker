@@ -35,12 +35,12 @@ export default function IssuesPage() {
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900">
             <Navbar />
-            <div className="max-w-7xl mx-auto px-4 py-8">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">Issues</h1>
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-8">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                    <h1 className="text-xl sm:text-2xl font-bold">Issues</h1>
                     <div className="flex space-x-2">
                         {(!user || role !== 'viewer') && (
-                            <Button onClick={() => router.push('/issues/new')}>New Issue</Button>
+                            <Button onClick={() => router.push('/issues/new')} className="w-full sm:w-auto">New Issue</Button>
                         )}
                     </div>
                 </div>

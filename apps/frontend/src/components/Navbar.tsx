@@ -15,6 +15,10 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ }) => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
+    const { user, tenantId, role, setTenant, setRole, clearSession } = useAuthStore();
+    const { logout, updateRole } = useAuth();
 
     const getLinkClass = (path: string) => {
         const isActive = pathname === path || (path !== '/issues' && pathname?.startsWith(path));
@@ -26,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
 
     return (
         <div className="border-b bg-white relative z-50">
-            <div className="flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
+            <div className="flex h-16 items-center justify-between px-3 sm:px-4 max-w-7xl mx-auto">
                 <div className="flex items-center space-x-4">
                     <div
                         className="font-bold text-xl text-blue-700 cursor-pointer hover:opacity-80 transition-opacity"
@@ -59,8 +63,8 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
                 {/* Desktop User Actions */}
                 <div className="hidden md:flex items-center space-x-4 ml-auto">
                     <div className="flex items-center text-sm text-black">
-                        <UserIcon className="h-4 w-4 mr-2" />
-                        <span className="font-medium truncate max-w-[150px]">{user?.name || user?.email}</span>
+                        <UserIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                        <span className="font-medium truncate max-w-[100px] lg:max-w-[200px]">{user?.name || user?.email}</span>
                         <select
                             value={role || 'viewer'}
                             onChange={(e) => {
@@ -100,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
 
             {/* Mobile Menu Dropdown */}
             {isMenuOpen && (
-                <div className="md:hidden border-t border-slate-100 p-4 space-y-4 bg-white shadow-lg absolute w-full left-0">
+                <div className="md:hidden border-t border-slate-100 p-3 sm:p-4 space-y-4 bg-white shadow-lg absolute w-full left-0">
                     <div className="space-y-2">
                         <label className="text-xs font-semibold text-slate-500 uppercase">Tenant</label>
                         <select

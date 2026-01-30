@@ -87,58 +87,60 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="mb-6">
-                <Button variant="ghost" className="pl-0 hover:bg-transparent" onClick={() => router.push('/issues')}>
+            <div className="mb-4 sm:mb-6">
+                <Button variant="ghost" className="pl-0 hover:bg-transparent -ml-2 sm:ml-0" onClick={() => router.push('/issues')}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Issues
                 </Button>
             </div>
 
             <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-                <div className="p-6 border-b bg-slate-50 flex justify-between items-start">
-                    <div>
-                        <div className="flex items-center space-x-3 mb-2">
-                            <h1 className="text-2xl font-bold text-black">{issue.title}</h1>
-                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[issue.status]}`}>
-                                {STATUS_LABELS[issue.status]}
-                            </span>
-                        </div>
-                        <div className="flex items-center text-sm text-slate-500 space-x-4">
-                            <div className="flex items-center">
-                                <UserIcon className="h-4 w-4 mr-1" />
-                                Created by {createdUser?.displayName || 'Unknown'}
+                <div className="p-4 sm:p-6 border-b bg-slate-50">
+                    <div className="flex flex-col gap-4">
+                        <div>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                                <h1 className="text-xl sm:text-2xl font-bold text-black">{issue.title}</h1>
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold w-fit ${STATUS_COLORS[issue.status]}`}>
+                                    {STATUS_LABELS[issue.status]}
+                                </span>
                             </div>
-                            <div className="flex items-center">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                {new Date(issue.createdAt).toLocaleDateString()}
+                            <div className="flex flex-col sm:flex-row sm:items-center text-sm text-slate-500 gap-2 sm:gap-4">
+                                <div className="flex items-center">
+                                    <UserIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+                                    <span className="truncate">Created by {createdUser?.displayName || 'Unknown'}</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
+                                    {new Date(issue.createdAt).toLocaleDateString()}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="flex space-x-2">
-                        {canEdit && (
-                            <Button variant="secondary" size="sm" onClick={() => router.push(`/issues/${issue.id}/edit`)}>
-                                <Edit2 className="h-3 w-3 mr-2" />
-                                Edit
-                            </Button>
-                        )}
-                        {canDelete && (
-                            <Button variant="danger" size="sm" onClick={handleDelete}>
-                                <Trash2 className="h-3 w-3 mr-2" />
-                                Delete
-                            </Button>
-                        )}
-                        {canClose && issue.status !== IssueStatus.CLOSED && (
-                            <Button variant="primary" size="sm" onClick={handleClose}>
-                                <CheckCircle className="h-3 w-3 mr-2" />
-                                Close Issue
-                            </Button>
-                        )}
+                        <div className="flex flex-wrap gap-2">
+                            {canEdit && (
+                                <Button variant="secondary" size="sm" onClick={() => router.push(`/issues/${issue.id}/edit`)}>
+                                    <Edit2 className="h-3 w-3 mr-2" />
+                                    Edit
+                                </Button>
+                            )}
+                            {canDelete && (
+                                <Button variant="danger" size="sm" onClick={handleDelete}>
+                                    <Trash2 className="h-3 w-3 mr-2" />
+                                    Delete
+                                </Button>
+                            )}
+                            {canClose && issue.status !== IssueStatus.CLOSED && (
+                                <Button variant="primary" size="sm" onClick={handleClose}>
+                                    <CheckCircle className="h-3 w-3 mr-2" />
+                                    Close Issue
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="md:col-span-2 space-y-6">
+                <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                    <div className="lg:col-span-2 space-y-6">
                         <div>
                             <h3 className="text-sm font-medium text-slate-500 mb-2">Description</h3>
                             <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">
