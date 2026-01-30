@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/Button';
 import { LogOut, User as UserIcon } from 'lucide-react';
-import { MockNotificationCenter } from './MockNotificationCenter';
+import { NovuInbox } from './NovuInbox';
 
 interface NavbarProps {
     onNavigate?: (page: string) => void;
@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
                             <option value="viewer">Viewer</option>
                         </select>
                     </div>
-                    <MockNotificationCenter />
+                    <NovuInbox />
                     <Button variant="ghost" size="sm" onClick={() => {
                         clearSession();
                         logout();
@@ -132,7 +132,7 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
                                 <UserIcon className="h-4 w-4 mr-2" />
                                 <span className="font-medium truncate">{user?.name || user?.email}</span>
                             </div>
-                            <MockNotificationCenter />
+                            <NovuInbox />
                         </div>
 
                         <div className="flex items-center justify-between">
