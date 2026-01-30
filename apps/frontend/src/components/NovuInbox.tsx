@@ -9,16 +9,21 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useState, useRef, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 
+// Fallback Novu App ID - used if environment variable is not configured
+const FALLBACK_NOVU_APP_ID = 'rPNktu-ZF0Xq';
+
 export function NovuInbox() {
     const { user } = useAuthStore();
-    const appIdentifier = process.env.NEXT_PUBLIC_NOVU_APP_ID;
+    // Use environment variable if available, otherwise use fallback
+    const appIdentifier = process.env.NEXT_PUBLIC_NOVU_APP_ID || FALLBACK_NOVU_APP_ID;
 
     // Debug logging
     console.log('[NovuInbox] Debug:', {
         hasUser: !!user,
         userId: user?.id,
         appIdentifier,
-        env: process.env.NEXT_PUBLIC_NOVU_APP_ID
+        env: process.env.NEXT_PUBLIC_NOVU_APP_ID,
+        usingFallback: !process.env.NEXT_PUBLIC_NOVU_APP_ID
     });
 
     // Don't render if no user is logged in
@@ -26,12 +31,7 @@ export function NovuInbox() {
         return null;
     }
 
-    // If no app identifier, show a placeholder bell icon
-    if (!appIdentifier) {
-        console.warn('[NovuInbox] NEXT_PUBLIC_NOVU_APP_ID not configured - showing placeholder');
-        return <PlaceholderInbox />;
-    }
-
+    // Always show Novu integration (with env var or fallback)
     return (
         <NovuProvider
             subscriberId={user.id}
