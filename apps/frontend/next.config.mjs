@@ -8,6 +8,9 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     optimizeFonts: false,
+    env: {
+        NEXT_PUBLIC_NOVU_APP_ID: process.env.NEXT_PUBLIC_NOVU_APP_ID,
+    },
     async rewrites() {
         // Only apply rewrites in development to avoid localhost URLs in production
         if (process.env.NODE_ENV === 'development') {
