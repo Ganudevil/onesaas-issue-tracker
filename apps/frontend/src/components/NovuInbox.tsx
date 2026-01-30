@@ -168,47 +168,62 @@ function CustomInbox() {
                 }}>
                     <InboxHeader />
 
-                    <div style={{ maxHeight: '500px', overflowY: 'auto', position: 'relative' }}>
+                    <div style={{ maxHeight: '500px', overflowY: 'auto', position: 'relative', fontSize: '13px' }}>
                         <style>{`
                             /* Hide the default Novu header */
                             .nc-header { display: none !important; }
                             
-                            /* Force all text to be reasonable size */
-                            .nc-notifications-list-item,
-                            .nc-notifications-list-item * {
+                            /* ---------------------------------------------------------
+                               CSS RESET FOR NOVU / MANTINE ELEMENTS
+                               Forcing compact sizing for 'userfriendly' view
+                            --------------------------------------------------------- */
+                            
+                            /* 1. Reset all text in the list item */
+                            div[class*="mantine-Text-root"], 
+                            .nc-notifications-list-item div,
+                            .nc-notifications-list-item span,
+                            .nc-notifications-list-item p {
+                                font-size: 13px !important; /* Force small text */
+                                line-height: 1.4 !important;
                                 font-family: inherit !important;
                             }
 
-                            /* Target Mantine text elements more aggressively */
-                            div[class*="mantine-Text-root"] {
+                            /* 2. Make the notification content/subject distinct but small */
+                            div[class*="mantine-Text-root"][style*="bold"] {
+                                font-weight: 600 !important;
                                 font-size: 13px !important;
-                                line-height: 1.4 !important;
-                                color: #475569 !important;
+                                margin-bottom: 2px !important;
                             }
 
-                            /* Make the subject/title bold but small */
-                            div[class*="mantine-Text-root"][style*="bold"],
-                            div[class*="mantine-Text-root"][class*="bold"] {
-                                font-weight: 600 !important;
-                                color: #0f172a !important;
-                                font-size: 14px !important;
-                                margin-bottom: 4px !important;
+                            /* 3. Force the Action Button to be small and compact */
+                            button[class*="mantine-Button-root"] {
+                                height: 26px !important;      /* Fixed small height */
+                                min-height: 26px !important;  /* Override min-height */
+                                padding: 0 12px !important;   /* Narrow padding */
+                                font-size: 11px !important;   /* Tiny font for button */
+                                margin-top: 6px !important;   /* Small gap from text */
+                                width: auto !important;       /* Auto width */
+                                border-radius: 4px !important;
+                            }
+
+                            /* 4. Adjust the list item padding */
+                            .nc-notifications-list-item {
+                                padding: 12px 14px !important; /* Compact padding */
+                                border-bottom: 1px solid #f1f5f9 !important;
+                            }
+
+                            /* 5. Timestamp (relative time) */
+                            span[class*="time-ago"], 
+                            div[class*="mantine-Text-root"][color="dimmed"] {
+                                font-size: 11px !important;   /* Tiny date */
+                                color: #94a3b8 !important;
+                                margin-top: 4px !important;
                             }
                             
-                            /* Fix huge button sizes */
-                            button[class*="mantine-Button-root"] {
-                                height: 28px !important;
-                                min-height: 28px !important;
-                                padding: 0 12px !important;
-                                font-size: 12px !important;
-                                margin-top: 8px !important;
-                                width: auto !important;
-                            }
-
-                            /* Timestamp styling */
-                            span[class*="time-ago"] {
-                                font-size: 11px !important;
-                                color: #94a3b8 !important;
+                            /* 6. Unseen notification specific style */
+                            .nc-notifications-list-item[data-test-id="notification-list-item-unseen"] {
+                                background-color: #f8fafc !important;
+                                border-left: 3px solid #3b82f6 !important;
                             }
                         `}</style>
                         <NotificationCenter
