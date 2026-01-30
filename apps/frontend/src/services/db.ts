@@ -19,6 +19,7 @@ interface IDatabase {
     restoreIssue(id: string, token: string): Promise<void>;
     getCommentsByIssue(issueId: string, token: string): Promise<Comment[]>;
     addComment(comment: Omit<Comment, 'id' | 'createdAt'>, token: string): Promise<Comment>;
+    deleteComment(id: string, token: string): Promise<void>;
     fixSchema(token: string): Promise<any>;
 }
 
@@ -170,6 +171,10 @@ class ApiDatabase implements IDatabase {
             method: 'POST',
             body: JSON.stringify({ text: comment.text, createdBy: comment.createdBy })
         });
+    }
+
+    async deleteComment(id: string, token: string): Promise<void> {
+        await this.fetch(`/issues/comments/${id}`, token, { method: 'DELETE' });
     }
 
     async fixSchema(token: string) {

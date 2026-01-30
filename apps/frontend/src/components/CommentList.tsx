@@ -4,7 +4,7 @@ import { db } from '../services/db';
 import { useAuthStore } from '../store/useAuthStore';
 import { Button } from './ui/Button';
 import { Comment, User } from '../types';
-import { User as UserIcon } from 'lucide-react';
+import { User as UserIcon, Trash2 } from 'lucide-react';
 
 interface CommentListProps {
     issueId: string;
@@ -64,16 +64,36 @@ export const CommentList: React.FC<CommentListProps> = ({ issueId, refreshTrigge
                                 <UserIcon className="h-4 w-4 text-slate-500" />
                             </div>
                         </div>
-                        <div className="flex-1 bg-slate-50 rounded-lg p-3">
+                        <div className="flex-1 bg-slate-50 rounded-lg p-3 group">
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-sm font-medium text-black">
                                     {users[comment.createdBy]?.displayName || 'Unknown'}
                                 </span>
-                                <span className="text-xs text-gray-600">
-                                    {new Date(comment.createdAt).toLocaleString()}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-gray-600">
+                                        {new Date(comment.createdAt).toLocaleString()}
+                                    </span>
+                                    {(user?.role === 'admin' || user?.id === comment.createdBy) && (
+                                        <button
+                                            onClick={async () => {
+                                                if (!confirm('Delete this comment?')) return;
+                                                try {
+                                                    await db.deleteComment(comment.id, token!);
+                                                    setComments(prev => prev.filter(c => c.id !== comment.id));
+                                                } catch (e) {
+                                                    console.error('Failed to delete comment', e);
+                                                    alert('Failed to delete comment');
+                                                }
+                                            }}
+                                            className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            title="Delete comment"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            <p className="text-sm text-black">{comment.text}</p>
+                            <p className="text-sm text-black whitespace-pre-wrap">{comment.text}</p>
                         </div>
                     </div>
                 ))}

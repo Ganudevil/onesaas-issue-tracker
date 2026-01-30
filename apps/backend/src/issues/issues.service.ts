@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, Logger, ForbiddenException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { CreateIssueDto, UpdateIssueDto } from './dto/issue.dto';
 import { NovuService } from '../notifications/novu.service';
@@ -259,6 +259,42 @@ export class IssuesService {
 
       return this.mapComment(result.rows[0]);
     } catch (error) {
+      throw new InternalServerErrorException((error as any).message);
+    }
+  }
+
+  async deleteComment(commentId: string, userId: string, role: string, tenantId: string) {
+    const schema = this.getSafeSchema(tenantId);
+    try {
+      // 1. Fetch comment to check ownership
+      const commentRes = await this.databaseService.query(
+        `SELECT * FROM "${schema}".comments WHERE id = $1 AND deleted_at IS NULL`,
+        [commentId]
+      );
+
+      if (commentRes.rows.length === 0) {
+        throw new NotFoundException('Comment not found');
+      }
+
+      const comment = commentRes.rows[0];
+
+      // 2. Check permissions
+      // Admin can delete any. Member can delete only their own.
+      if (role !== 'admin' && comment.created_by !== userId) {
+        throw new ForbiddenException('You can only delete your own comments');
+      }
+
+      // 3. Soft delete
+      await this.databaseService.query(
+        `UPDATE "${schema}".comments SET deleted_at = NOW() WHERE id = $1`,
+        [commentId]
+      );
+
+      return { deleted: true, id: commentId };
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof ForbiddenException) {
+        throw error;
+      }
       throw new InternalServerErrorException((error as any).message);
     }
   }
