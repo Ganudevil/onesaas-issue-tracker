@@ -13,13 +13,23 @@ export function NovuInbox() {
     const { user } = useAuthStore();
     const appIdentifier = process.env.NEXT_PUBLIC_NOVU_APP_ID;
 
-    if (user) {
-        console.log('[NovuInbox] Initializing with:', { subscriberId: user.id, appIdentifier });
+    // Debug logging
+    console.log('[NovuInbox] Debug:', {
+        hasUser: !!user,
+        userId: user?.id,
+        appIdentifier,
+        env: process.env.NEXT_PUBLIC_NOVU_APP_ID
+    });
+
+    // Don't render if no user is logged in
+    if (!user) {
+        return null;
     }
 
-    if (!user || !appIdentifier) {
-        if (!appIdentifier) console.warn('[NovuInbox] Missing NEXT_PUBLIC_NOVU_APP_ID');
-        return null;
+    // If no app identifier, show a placeholder bell icon
+    if (!appIdentifier) {
+        console.warn('[NovuInbox] NEXT_PUBLIC_NOVU_APP_ID not configured - showing placeholder');
+        return <PlaceholderInbox />;
     }
 
     return (
@@ -30,6 +40,68 @@ export function NovuInbox() {
         >
             <CustomInbox />
         </NovuProvider>
+    );
+}
+
+// Placeholder component when Novu is not configured
+function PlaceholderInbox() {
+    const [isOpen, setIsOpen] = useState(false);
+    const popoverRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <div style={{ position: 'relative' }} ref={popoverRef}>
+            <div onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Bell className="h-5 w-5 text-gray-600 hover:text-blue-600" />
+            </div>
+
+            {isOpen && (
+                <div style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: '40px',
+                    zIndex: 9999,
+                    width: '350px',
+                    backgroundColor: 'white',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #edf2f7',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{
+                        padding: '16px',
+                        borderBottom: '1px solid #edf2f7',
+                        fontWeight: 'bold',
+                        fontSize: '16px'
+                    }}>
+                        Notifications
+                    </div>
+                    <div style={{
+                        padding: '32px 16px',
+                        textAlign: 'center',
+                        color: '#718096',
+                        fontSize: '14px'
+                    }}>
+                        <Bell className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                        <p style={{ margin: 0 }}>Notifications not configured</p>
+                        <p style={{ margin: '8px 0 0 0', fontSize: '12px' }}>
+                            Set NEXT_PUBLIC_NOVU_APP_ID in environment variables
+                        </p>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
 
