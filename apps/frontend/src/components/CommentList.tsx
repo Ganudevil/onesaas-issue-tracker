@@ -12,7 +12,7 @@ interface CommentListProps {
 }
 
 export const CommentList: React.FC<CommentListProps> = ({ issueId, refreshTrigger }) => {
-    const { user, token } = useAuthStore();
+    const { user, token, role } = useAuthStore();
     const [comments, setComments] = useState<Comment[]>([]);
     const [text, setText] = useState('');
     const [users, setUsers] = useState<Record<string, User>>({});
@@ -73,7 +73,7 @@ export const CommentList: React.FC<CommentListProps> = ({ issueId, refreshTrigge
                                     <span className="text-xs text-gray-600">
                                         {new Date(comment.createdAt).toLocaleString()}
                                     </span>
-                                    {(user?.role === 'admin' || user?.id === comment.createdBy) && (
+                                    {(role === 'admin' || user?.id === comment.createdBy) && (
                                         <button
                                             onClick={async () => {
                                                 if (!confirm('Delete this comment?')) return;
