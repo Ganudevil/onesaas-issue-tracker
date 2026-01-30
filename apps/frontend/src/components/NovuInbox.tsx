@@ -173,28 +173,42 @@ function CustomInbox() {
                             /* Hide the default Novu header */
                             .nc-header { display: none !important; }
                             
-                            /* Custom overrides for notification items */
-                            .nc-notifications-list-item {
-                                padding: 16px !important;
-                                border-bottom: 1px solid #f1f5f9 !important;
+                            /* Force all text to be reasonable size */
+                            .nc-notifications-list-item,
+                            .nc-notifications-list-item * {
+                                font-family: inherit !important;
+                            }
+
+                            /* Target Mantine text elements more aggressively */
+                            div[class*="mantine-Text-root"] {
+                                font-size: 13px !important;
+                                line-height: 1.4 !important;
+                                color: #475569 !important;
+                            }
+
+                            /* Make the subject/title bold but small */
+                            div[class*="mantine-Text-root"][style*="bold"],
+                            div[class*="mantine-Text-root"][class*="bold"] {
+                                font-weight: 600 !important;
+                                color: #0f172a !important;
+                                font-size: 14px !important;
+                                margin-bottom: 4px !important;
                             }
                             
                             /* Fix huge button sizes */
-                            .nc-notifications-list-item button {
-                                padding: 8px 16px !important;
-                                font-size: 13px !important;
-                                height: auto !important;
-                                min-height: 32px !important;
-                                width: auto !important;
-                                display: inline-flex !important;
+                            button[class*="mantine-Button-root"] {
+                                height: 28px !important;
+                                min-height: 28px !important;
+                                padding: 0 12px !important;
+                                font-size: 12px !important;
                                 margin-top: 8px !important;
+                                width: auto !important;
                             }
-                            
-                            /* Fix text sizes */
-                            .mantine-Text-root {
-                                font-size: 14px !important;
-                                line-height: 1.5 !important;
-                                color: #1e293b !important;
+
+                            /* Timestamp styling */
+                            span[class*="time-ago"] {
+                                font-size: 11px !important;
+                                color: #94a3b8 !important;
                             }
                         `}</style>
                         <NotificationCenter
@@ -216,22 +230,6 @@ function CustomInbox() {
                                     notificationItem: {
                                         background: '#ffffff',
                                         color: '#1e293b',
-                                        seen: {
-                                            background: '#f8fafc',
-                                            color: '#64748b',
-                                        },
-                                        unseen: {
-                                            background: '#ffffff',
-                                            color: '#1e293b',
-                                            boxShadow: 'inset 4px 0 0 #3b82f6',
-                                        }
-                                    }
-                                }
-                            }}
-                            styles={{
-                                notificationItem: {
-                                    container: {
-                                        borderBottom: '1px solid #f1f5f9',
                                     }
                                 }
                             }}
