@@ -133,6 +133,10 @@ export const mockDb = {
         return newComment;
     },
 
+    async deleteComment(id: string, token: string): Promise<void> {
+        commentsStore = commentsStore.filter(c => c.id !== id);
+    },
+
     async fixSchema(token: string) {
         return { status: 'mock_fixed' };
     }

@@ -98,6 +98,15 @@ export class IssuesController {
     return this.issuesService.addComment(id, createCommentDto.text, userId, tenantId);
   }
 
+  @Delete('comments/:id')
+  @Roles('member', 'admin')
+  @ApiOperation({ summary: 'Delete comment', description: 'Delete a comment by ID (Admin or Author only)' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid', description: 'Comment UUID' })
+  deleteComment(@Param('id', ParseUUIDPipe) id: string, @Request() req: any) {
+    const { tenantId, userId, role } = req.user;
+    return this.issuesService.deleteComment(id, userId, role, tenantId);
+  }
+
   @Get('fix/schema')
   @ApiOperation({ summary: 'Fix schema', description: 'Fix missing columns in tenant schema' })
   fixSchema(@Request() req: any) {
