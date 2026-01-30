@@ -157,7 +157,9 @@ function CustomInbox() {
                     right: 0,
                     top: '40px',
                     zIndex: 9999,
-                    width: '420px', // Slightly wider for better text fit
+                    width: '100%',
+                    maxWidth: '420px',
+                    minWidth: '300px',
                     backgroundColor: 'white',
                     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                     borderRadius: '0.5rem',
