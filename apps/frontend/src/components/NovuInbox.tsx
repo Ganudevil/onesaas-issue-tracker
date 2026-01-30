@@ -105,6 +105,7 @@ function PlaceholderInbox() {
     );
 }
 
+// Custom styles for the notification center
 function CustomInbox() {
     const [isOpen, setIsOpen] = useState(false);
     const { unseenCount } = useNotifications();
@@ -156,7 +157,7 @@ function CustomInbox() {
                     right: 0,
                     top: '40px',
                     zIndex: 9999,
-                    width: '400px',
+                    width: '420px', // Slightly wider for better text fit
                     backgroundColor: 'white',
                     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                     borderRadius: '0.5rem',
@@ -167,11 +168,34 @@ function CustomInbox() {
                 }}>
                     <InboxHeader />
 
-                    {/* Container for NotificationCenter with CSS override to hide default header */}
-                    <div style={{ maxHeight: '400px', overflowY: 'auto', position: 'relative' }}>
+                    <div style={{ maxHeight: '500px', overflowY: 'auto', position: 'relative' }}>
                         <style>{`
                             /* Hide the default Novu header */
                             .nc-header { display: none !important; }
+                            
+                            /* Custom overrides for notification items */
+                            .nc-notifications-list-item {
+                                padding: 16px !important;
+                                border-bottom: 1px solid #f1f5f9 !important;
+                            }
+                            
+                            /* Fix huge button sizes */
+                            .nc-notifications-list-item button {
+                                padding: 8px 16px !important;
+                                font-size: 13px !important;
+                                height: auto !important;
+                                min-height: 32px !important;
+                                width: auto !important;
+                                display: inline-flex !important;
+                                margin-top: 8px !important;
+                            }
+                            
+                            /* Fix text sizes */
+                            .mantine-Text-root {
+                                font-size: 14px !important;
+                                line-height: 1.5 !important;
+                                color: #1e293b !important;
+                            }
                         `}</style>
                         <NotificationCenter
                             colorScheme="light"
@@ -182,6 +206,35 @@ function CustomInbox() {
                             }}
                             showUserPreferences={false}
                             header={() => <></>}
+                            theme={{
+                                light: {
+                                    loaderColor: '#3b82f6',
+                                    layout: {
+                                        background: '#ffffff',
+                                        color: '#1e293b',
+                                    },
+                                    notificationItem: {
+                                        background: '#ffffff',
+                                        color: '#1e293b',
+                                        seen: {
+                                            background: '#f8fafc',
+                                            color: '#64748b',
+                                        },
+                                        unseen: {
+                                            background: '#ffffff',
+                                            color: '#1e293b',
+                                            boxShadow: 'inset 4px 0 0 #3b82f6',
+                                        }
+                                    }
+                                }
+                            }}
+                            styles={{
+                                notificationItem: {
+                                    container: {
+                                        borderBottom: '1px solid #f1f5f9',
+                                    }
+                                }
+                            }}
                         />
                     </div>
                 </div>
@@ -194,9 +247,7 @@ function InboxHeader() {
     const { markAllNotificationsAsRead, removeAllMessages } = useNotifications();
 
     const handleClearAll = async () => {
-        console.log('Using removeAllMessages via custom header');
         try {
-            await markAllNotificationsAsRead();
             await removeAllMessages();
         } catch (err) {
             console.error('Error clearing:', err);
@@ -212,46 +263,49 @@ function InboxHeader() {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: '16px',
-            borderBottom: '1px solid #edf2f7',
-            backgroundColor: 'white',
+            padding: '12px 16px',
+            borderBottom: '1px solid #e2e8f0',
+            backgroundColor: '#f8fafc',
             zIndex: 20
         }}>
-            <div style={{ fontWeight: 'bold', fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span>Notifications</span>
+            <div style={{ fontWeight: 600, fontSize: '16px', color: '#0f172a' }}>
+                Notifications
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                    onClick={handleMarkAllRead}
+                    style={{
+                        fontSize: '12px',
+                        color: '#64748b',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 500
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#3b82f6'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
+                    type="button"
+                >
+                    Mark all read
+                </button>
                 <button
                     onClick={handleClearAll}
                     style={{
-                        fontSize: '11px',
-                        color: 'white',
-                        background: '#e53e3e',
+                        fontSize: '12px',
+                        color: '#ef4444',
+                        background: 'none',
                         border: 'none',
-                        borderRadius: '4px',
-                        padding: '4px 8px',
                         cursor: 'pointer',
-                        fontWeight: 600,
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                        fontWeight: 500
                     }}
-                    title="Clear all notifications"
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#dc2626'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#ef4444'}
                     type="button"
                 >
-                    Clear All
+                    Clear all
                 </button>
             </div>
-
-            <button
-                onClick={handleMarkAllRead}
-                style={{
-                    fontSize: '12px',
-                    color: '#718096',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer'
-                }}
-                type="button"
-            >
-                Mark all as read
-            </button>
         </div>
     );
 }
