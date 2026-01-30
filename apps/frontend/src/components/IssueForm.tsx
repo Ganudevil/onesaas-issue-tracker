@@ -74,17 +74,17 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
     const canAssign = role === 'admin';
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
-            <Button variant="ghost" className="pl-0 hover:bg-transparent" onClick={() => router.back()}>
+        <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
+            <Button variant="ghost" className="pl-0 hover:bg-transparent -ml-2 sm:ml-0" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
             </Button>
 
             <div>
-                <h1 className="text-2xl font-bold text-black">{isEdit ? 'Edit Issue' : 'Create New Issue'}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-black">{isEdit ? 'Edit Issue' : 'Create New Issue'}</h1>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg border shadow-sm">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-white p-4 sm:p-6 rounded-lg border shadow-sm">
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-black">Title</label>
                     <input
@@ -108,7 +108,7 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                     />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-black">Status</label>
                         <select
@@ -141,8 +141,8 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                     </div>
                 </div>
 
-                <div className="pt-4 flex justify-end space-x-3">
-                    <Button type="button" variant="secondary" className="text-red-500 border-red-200 hover:bg-red-50" onClick={async () => {
+                <div className="pt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3">
+                    <Button type="button" variant="secondary" className="text-red-500 border-red-200 hover:bg-red-50 w-full sm:w-auto" onClick={async () => {
                         if (!token) return;
                         try {
                             setLoading(true);
@@ -156,10 +156,10 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                     }}>
                         Repair System
                     </Button>
-                    <Button type="button" variant="secondary" onClick={() => router.push('/issues')}>
+                    <Button type="button" variant="secondary" onClick={() => router.push('/issues')} className="w-full sm:w-auto">
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={loading}>
+                    <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                         {loading ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create Issue')}
                     </Button>
                 </div>

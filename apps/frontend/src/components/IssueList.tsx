@@ -69,9 +69,9 @@ export const IssueList: React.FC<IssueListProps> = ({ onNavigate, onlyMyIssues =
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-black">
+                    <h1 className="text-xl sm:text-2xl font-bold text-black">
                         {onlyMyIssues ? 'My Assigned Issues' : 'All Issues'}
                     </h1>
                     <p className="text-gray-800 text-sm mt-1">
@@ -79,14 +79,14 @@ export const IssueList: React.FC<IssueListProps> = ({ onNavigate, onlyMyIssues =
                     </p>
                 </div>
                 {canCreate && !onlyMyIssues && (
-                    <Button onClick={() => onNavigate?.('create')}>
+                    <Button onClick={() => onNavigate?.('create')} className="w-full sm:w-auto">
                         <Plus className="h-4 w-4 mr-2" />
                         New Issue
                     </Button>
                 )}
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {filteredIssues.map(issue => (
                     <IssueCard
                         key={issue.id}

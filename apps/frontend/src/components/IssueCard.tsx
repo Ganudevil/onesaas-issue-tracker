@@ -26,24 +26,24 @@ export const IssueCard: React.FC<IssueCardProps & { onDelete?: (id: string) => v
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-sm text-gray-800 line-clamp-2 mb-4">
+                    <p className="text-sm text-gray-800 line-clamp-2 mb-3 sm:mb-4">
                         {issue.description}
                     </p>
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                        <div className="flex items-center space-x-3">
+                    <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 text-xs text-gray-600">
+                        <div className="flex items-center flex-wrap gap-2 sm:gap-3">
                             <div className="flex items-center">
-                                <User className="h-3 w-3 mr-1" />
-                                {createdUser?.displayName || 'Unknown'}
+                                <User className="h-3 w-3 mr-1 flex-shrink-0" />
+                                <span className="truncate max-w-[120px] sm:max-w-none">{createdUser?.displayName || 'Unknown'}</span>
                             </div>
                             {assignedUser && (
                                 <div className="flex items-center text-blue-600">
                                     <span className="mr-1">→</span>
-                                    {assignedUser.displayName}
+                                    <span className="truncate max-w-[120px] sm:max-w-none">{assignedUser.displayName}</span>
                                 </div>
                             )}
                         </div>
                         <div className="flex items-center">
-                            <Calendar className="h-3 w-3 mr-1" />
+                            <Calendar className="h-3 w-3 mr-1 flex-shrink-0" />
                             {new Date(issue.createdAt).toLocaleDateString()}
                         </div>
                     </div>
