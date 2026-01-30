@@ -7,7 +7,8 @@
  *   node scripts/setup-novu-workflows.js YOUR_NOVU_API_KEY
  */
 
-const { Novu } = require('@novu/node');
+const path = require('path');
+const { Novu } = require(path.join(__dirname, '../apps/backend/node_modules/@novu/node'));
 
 // Workflow configurations
 const workflows = [
@@ -93,14 +94,12 @@ const workflows = [
     },
 ];
 
-async function createWorkflow(novu, workflowConfig) {
+async function createWorkflow(novu, workflowConfig, notificationGroupId) {
     try {
-        console.log(`\n📝 Creating workflow: ${workflowConfig.name} (${workflowConfig.identifier})`);
-
         // Create the workflow with in-app notification step
-        const workflow = await novu.notificationTemplates.create({
+        const response = await novu.notificationTemplates.create({
             name: workflowConfig.name,
-            notificationGroupId: process.env.NOVU_NOTIFICATION_GROUP_ID || '65d7f03a6a6b2c0013a4b9c1', // Default group
+            notificationGroupId: notificationGroupId,
             tags: ['issue-tracker', 'automated'],
             description: workflowConfig.description,
             steps: [
@@ -127,16 +126,24 @@ async function createWorkflow(novu, workflowConfig) {
             },
         });
 
+        const workflowId = response.data?.data?._id || response.data?._id;
+
+        if (!workflowId) {
+            console.error('❌ Could not find ID in create response:', JSON.stringify(response.data, null, 2));
+            throw new Error('Workflow creation returned no ID');
+        }
+
         // Update the workflow identifier
-        await novu.notificationTemplates.update(workflow.data._id, {
+        // Note: Some API versions let you set identifier in create, but update is safer
+        await novu.notificationTemplates.update(workflowId, {
             identifier: workflowConfig.identifier,
         });
 
         console.log(`✅ Successfully created: ${workflowConfig.name}`);
-        console.log(`   ID: ${workflow.data._id}`);
+        console.log(`   ID: ${workflowId}`);
         console.log(`   Identifier: ${workflowConfig.identifier}`);
 
-        return workflow.data;
+        return response.data;
     } catch (error) {
         console.error(`❌ Error creating workflow ${workflowConfig.name}:`, error.message);
         if (error.response?.data) {
@@ -189,10 +196,18 @@ async function main() {
 
     const novu = new Novu(apiKey);
 
+    let notificationGroupId;
+
     try {
         // Verify connection by getting notification groups
-        await novu.notificationGroups.get();
-        console.log('✅ Connected to Novu successfully!\n');
+        const groupsResponse = await novu.notificationGroups.get();
+        const groups = groupsResponse.data.data;
+        if (groups && groups.length > 0) {
+            notificationGroupId = groups[0]._id;
+            console.log(`✅ Connected to Novu! Using Notification Group: ${groups[0].name} (${notificationGroupId})\n`);
+        } else {
+            throw new Error('No notification groups found');
+        }
     } catch (error) {
         console.error('❌ Failed to connect to Novu. Please check your API key.');
         console.error('   Error:', error.message);
@@ -215,7 +230,7 @@ async function main() {
         }
 
         try {
-            await createWorkflow(novu, workflowConfig);
+            await createWorkflow(novu, workflowConfig, notificationGroupId);
             created++;
             // Small delay to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 500));
