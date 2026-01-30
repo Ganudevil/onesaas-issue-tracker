@@ -126,7 +126,7 @@ export class IssuesService {
         this.logger.log(`Using fallback user context for Novu: ${JSON.stringify(user)}`);
       }
 
-      await this.novuService.triggerEvent('issue-created', tenantId, user, {
+      await this.novuService.triggerEvent('issue-created-quye', tenantId, user, {
         issueId: issue.id,
         title: issue.title,
         priority: issue.priority,
@@ -171,7 +171,7 @@ export class IssuesService {
       if (updateDto.status) {
         const targetUserId = updatedIssue.assignedTo || updatedIssue.createdBy;
         const user = await this.getUser(targetUserId, tenantId);
-        await this.novuService.triggerEvent('issue-status-changed', tenantId, user, {
+        await this.novuService.triggerEvent('issue-status-changed-474y', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
           status: updatedIssue.status,
@@ -181,7 +181,7 @@ export class IssuesService {
       // Trigger Notification for Assignment
       if (updateDto.assignedTo) {
         const user = await this.getUser(updateDto.assignedTo, tenantId);
-        await this.novuService.triggerEvent('issue-assigned', tenantId, user, {
+        await this.novuService.triggerEvent('issue-assigned-7lg0', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
         });
@@ -251,7 +251,7 @@ export class IssuesService {
       const targetUserId = issue.assignedTo || issue.createdBy;
       const user = await this.getUser(targetUserId, tenantId);
 
-      await this.novuService.triggerEvent('comment-added', tenantId, user, {
+      await this.novuService.triggerEvent('comment-added-b805', tenantId, user, {
         issueId: issue.id,
         issueTitle: issue.title,
         comment: text
