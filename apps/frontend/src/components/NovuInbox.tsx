@@ -10,7 +10,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 
 // Fallback Novu App ID - used if environment variable is not configured
-const FALLBACK_NOVU_APP_ID = 'Wxa7z9RHue8E';
+const FALLBACK_NOVU_APP_ID = 'lxxz7z9RHue8E';
 
 export function NovuInbox() {
     const { user } = useAuthStore();
