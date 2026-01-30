@@ -64,9 +64,10 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
 
                     // Sync with Database to get the correct UUID for FKs
                     const token = auth.user.access_token;
+                    const currentTenant = tenantId || 'tenant1';
 
                     // Add timeout to prevent hanging
-                    const syncPromise = db.ensureUserExists(auth.user.profile.sub || '', email, role, displayName, token);
+                    const syncPromise = db.ensureUserExists(auth.user.profile.sub || '', email, role, displayName, token, currentTenant);
                     const timeoutPromise = new Promise<null>((_, reject) =>
                         setTimeout(() => reject(new Error('Sync timeout')), 15000)
                     );
@@ -86,7 +87,6 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
                                 name: dbUser.displayName,
                             },
                             token || '',
-                            targetTenant,
                             targetTenant,
                             dbUser.role as any // Type assertion for compatibility
                         );
@@ -131,7 +131,9 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
 
     const updateRole = async (newRole: UserRole) => {
         if (user && auth.user?.access_token) {
-            const updated = await db.updateUserRole(user.email, newRole, auth.user.access_token);
+            // Use current tenantId or default to tenant1
+            const targetTenant = tenantId || 'tenant1';
+            const updated = await db.updateUserRole(user.email, newRole, auth.user.access_token, targetTenant);
             setUser(updated);
         }
     };
