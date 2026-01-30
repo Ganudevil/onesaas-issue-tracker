@@ -25,41 +25,48 @@ let commentsStore: Comment[] = [
     }
 ];
 
+// Mock persistent user store
+let mockUserStore = {
+    id: 'mock-user-123',
+    email: 'demo@onesaas.local',
+    role: UserRole.ADMIN,
+    displayName: 'Demo User'
+};
+
 // Mock database service
 export const mockDb = {
     async getUser(id: string, token: string): Promise<User | undefined> {
-        return {
-            id,
-            email: 'demo@onesaas.local',
-            role: UserRole.ADMIN,
-            displayName: 'Demo User'
-        };
+        return { ...mockUserStore, id };
     },
 
     async getUserByEmail(email: string, token: string): Promise<User | null> {
-        return {
-            id: 'mock-user-123',
-            email,
-            role: UserRole.ADMIN,
-            displayName: 'Demo User'
-        };
+        // Return the stored user state
+        return { ...mockUserStore, email };
     },
 
     async createUser(id: string, email: string, role: UserRole, displayName: string, token: string): Promise<User> {
-        return { id, email, role, displayName };
+        mockUserStore = { id, email, role, displayName };
+        return { ...mockUserStore };
     },
 
-    async ensureUserExists(id: string, email: string, role: UserRole, displayName: string, token: string): Promise<User> {
-        return { id, email, role, displayName };
+    async ensureUserExists(id: string, email: string, role: UserRole, displayName: string, token: string, tenantId: string = 'tenant1'): Promise<User> {
+        // Always return the stored user state to persist role changes
+        return { ...mockUserStore, email };
     },
 
-    async updateUserRole(email: string, role: UserRole, token: string): Promise<User> {
-        return {
-            id: 'mock-user-123',
-            email,
-            role,
-            displayName: 'Demo User'
-        };
+    async updateUserRole(email: string, role: UserRole, token: string, tenantId: string = 'tenant1'): Promise<User> {
+        // In a real app, we'd store roles per tenant.
+        // For simple mock, we just update the global mock user.
+        mockUserStore.role = role;
+        return { ...mockUserStore, email };
+    },
+
+    async getAllUsers(token: string): Promise<User[]> {
+        return [{ ...mockUserStore }];
+    },
+
+    async softDeleteUser(id: string, token: string): Promise<void> {
+        // No-op for mock
     },
 
     async getIssues(token: string): Promise<Issue[]> {

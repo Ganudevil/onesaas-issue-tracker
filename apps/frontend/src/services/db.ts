@@ -6,8 +6,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 interface IDatabase {
     getUserByEmail(email: string, token: string): Promise<User | null>;
     createUser(id: string, email: string, role: UserRole, displayName: string, token: string): Promise<User>;
-    ensureUserExists(id: string, email: string, role: UserRole, displayName: string, token: string): Promise<User>;
-    updateUserRole(email: string, role: UserRole, token: string): Promise<User>;
+    ensureUserExists(id: string, email: string, role: UserRole, displayName: string, token: string, tenantId?: string): Promise<User>;
+    updateUserRole(email: string, role: UserRole, token: string, tenantId?: string): Promise<User>;
     getAllUsers(token: string): Promise<User[]>; // Not explicitly implemented in backend?
     softDeleteUser(id: string, token: string): Promise<void>; // Not implemented in backend
     getUser(id: string, token: string): Promise<User | undefined>; // Not implemented
@@ -96,16 +96,19 @@ class ApiDatabase implements IDatabase {
     }
 
 
-    async ensureUserExists(id: string, email: string, role: UserRole, displayName: string, token: string): Promise<User> {
+    async ensureUserExists(id: string, email: string, role: UserRole, displayName: string, token: string, tenantId: string = 'tenant1'): Promise<User> {
         const existing = await this.getUserByEmail(email, token);
         if (existing) return existing;
         return this.createUser(id, email, role, displayName, token);
     }
 
-    async updateUserRole(email: string, role: UserRole, token: string): Promise<User> {
+    async updateUserRole(email: string, role: UserRole, token: string, tenantId: string = 'tenant1'): Promise<User> {
         const data = await this.fetch(`/users/${encodeURIComponent(email)}/role`, token, {
             method: 'PATCH',
-            body: JSON.stringify({ role })
+            body: JSON.stringify({ role }),
+            headers: {
+                'x-tenant-id': tenantId
+            }
         });
         return this.mapUser(data);
     }
