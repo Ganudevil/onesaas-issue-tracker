@@ -1,4 +1,5 @@
 import { Issue, Comment, User, UserRole, IssueStatus } from '../types';
+import MockNotificationService from './mockNotificationService';
 
 // In-memory store
 let issuesStore: Issue[] = [
@@ -81,6 +82,10 @@ export const mockDb = {
         };
         issuesStore.push(newIssue);
         console.log('[MockDB] Created issue:', newIssue);
+
+        // Trigger mock notification
+        MockNotificationService.notifyIssueCreated(newIssue, 'You');
+
         return newIssue;
     },
 
@@ -111,6 +116,13 @@ export const mockDb = {
             createdAt: new Date().toISOString()
         };
         commentsStore.push(newComment);
+
+        // Trigger mock notification
+        const issue = issuesStore.find(i => i.id === comment.issueId);
+        if (issue) {
+            MockNotificationService.notifyCommentAdded(issue, comment.text, 'You');
+        }
+
         return newComment;
     },
 
