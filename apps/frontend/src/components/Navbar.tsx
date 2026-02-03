@@ -37,31 +37,14 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
                         className="cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => router.push('/issues')}
                     >
-                        {/* Custom Vector Logo for Transparency */}
-                        <div className="flex items-center gap-2 group">
-                            <div className="relative w-10 h-10 flex items-center justify-center -mt-1">
-                                <svg
-                                    viewBox="0 0 40 32"
-                                    className="w-full h-full drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    {/* Arrow Up */}
-                                    <path d="M20 4 L20 20 M14 10 L20 4 L26 10" className="text-blue-500 stroke-[3px]" />
-                                    {/* Circuit/Curve Lines */}
-                                    <path d="M5 24 C5 24 10 18 20 18 C30 18 35 24 35 24" className="text-cyan-400" />
-                                    <circle cx="5" cy="24" r="2.5" fill="currentColor" className="text-cyan-400 border-none" />
-                                    <circle cx="35" cy="24" r="2.5" fill="currentColor" className="text-cyan-400 border-none" />
-                                </svg>
-                            </div>
-                            <span className="text-xl font-bold tracking-tight flex items-baseline -ml-1">
-                                <span className="text-slate-100 group-hover:text-white transition-colors">one</span>
-                                <span className="text-cyan-400 group-hover:text-cyan-300 transition-colors drop-shadow-[0_0_5px_rgba(34,211,238,0.4)]">SAAS</span>
-                            </span>
-                        </div>
+                        <Image
+                            src="/OnesaasLogo.png"
+                            alt="oneSAAS"
+                            width={180}
+                            height={50}
+                            className="h-12 w-auto object-contain"
+                            priority
+                        />
                     </div>
                 </div>
 
