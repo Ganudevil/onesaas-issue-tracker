@@ -1,6 +1,6 @@
 import React from 'react';
 import { Issue, User as UserType } from '../types';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/Card';
 import { STATUS_COLORS, STATUS_LABELS } from '../constants';
 import { Calendar, User } from 'lucide-react';
 
