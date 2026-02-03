@@ -71,10 +71,10 @@ export const IssueList: React.FC<IssueListProps> = ({ onNavigate, onlyMyIssues =
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-black">
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-100">
                         {onlyMyIssues ? 'My Assigned Issues' : 'All Issues'}
                     </h1>
-                    <p className="text-gray-800 text-sm mt-1">
+                    <p className="text-slate-400 text-sm mt-1">
                         Manage and track your project tasks.
                     </p>
                 </div>
@@ -104,8 +104,8 @@ export const IssueList: React.FC<IssueListProps> = ({ onNavigate, onlyMyIssues =
                     </div>
                 )}
                 {!error && filteredIssues.length === 0 && (
-                    <div className="col-span-full text-center py-12 border-2 border-dashed rounded-lg">
-                        <p className="text-slate-500">No issues found.</p>
+                    <div className="col-span-full text-center py-12 border-2 border-dashed border-white/20 rounded-lg">
+                        <p className="text-slate-400">No issues found.</p>
                     </div>
                 )}
             </div>
