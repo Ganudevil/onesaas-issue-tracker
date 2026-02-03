@@ -58,8 +58,8 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
                         }}
                         className="text-xs px-2 py-1 bg-white/10 rounded text-slate-100 border border-white/20 focus:outline-none cursor-pointer hover:border-cyan-500 mr-4"
                     >
-                        <option value="tenant1">tenant1</option>
-                        <option value="tenant2">tenant2</option>
+                        <option value="tenant1" className="bg-[var(--bg-header)] text-[var(--text-primary)]">tenant1</option>
+                        <option value="tenant2" className="bg-[var(--bg-header)] text-[var(--text-primary)]">tenant2</option>
                     </select>
 
                     <nav className="flex items-center space-x-6">
@@ -125,8 +125,8 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
                             }}
                             className="w-full text-sm px-3 py-2 bg-white/10 rounded text-slate-100 border border-white/20 focus:outline-none"
                         >
-                            <option value="tenant1">tenant1</option>
-                            <option value="tenant2">tenant2</option>
+                            <option value="tenant1" className="bg-[var(--bg-header)] text-[var(--text-primary)]">tenant1</option>
+                            <option value="tenant2" className="bg-[var(--bg-header)] text-[var(--text-primary)]">tenant2</option>
                         </select>
                     </div>
 
