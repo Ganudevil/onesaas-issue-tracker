@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0f172a;
+  --background: #2D1D42;
   --foreground: #f8fafc;
 }
 
@@ -15,8 +15,8 @@
 html {
   height: 100%;
   min-height: 100vh;
-  /* Deep Blue/Purple Gradient */
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%) !important;
+  /* Dark Purple/Blue Gradient from Palette */
+  background: linear-gradient(90deg, #2D1D42 0%, #2A1E41 50%, #281F41 100%) !important;
   background-attachment: fixed !important;
 }
 
@@ -46,14 +46,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #1F2022;
+  /* Dark Charcoal */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #2A1E41;
+  /* Indigo */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #3E3B5E;
+  /* Lighter Indigo */
 }

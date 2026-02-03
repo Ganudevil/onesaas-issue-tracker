@@ -64,13 +64,13 @@ export const CommentList: React.FC<CommentListProps> = ({ issueId, refreshTrigge
                                 <UserIcon className="h-4 w-4 text-slate-500" />
                             </div>
                         </div>
-                        <div className="flex-1 bg-white/5 border border-white/10 rounded-lg p-3 group">
+                        <div className="flex-1 bg-[#1F2022] border border-white/10 rounded-lg p-3 group">
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-sm font-medium text-slate-100">
                                     {users[comment.createdBy]?.displayName || 'Unknown'}
                                 </span>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs text-gray-600">
+                                    <span className="text-xs text-[#B0B3C0]">
                                         {new Date(comment.createdAt).toLocaleString()}
                                     </span>
                                     {(role === 'admin' || user?.id === comment.createdBy) && (

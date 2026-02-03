@@ -84,13 +84,13 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                 <h1 className="text-xl sm:text-2xl font-bold text-slate-100">{isEdit ? 'Edit Issue' : 'Create New Issue'}</h1>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 backdrop-blur-md p-4 sm:p-6 rounded-lg border border-white/10 shadow-sm text-slate-100">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-[#2A1E41] backdrop-blur-md p-4 sm:p-6 rounded-lg border border-white/10 shadow-sm text-slate-100">
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-200">Title</label>
                     <input
                         type="text"
                         required
-                        className="w-full rounded-md border border-white/20 p-2 bg-white/10 text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none placeholder-slate-400"
+                        className="w-full rounded-md border border-white/20 p-2 bg-[#1F2022] text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none placeholder-slate-400"
                         value={formData.title}
                         onChange={e => setFormData({ ...formData, title: e.target.value })}
                         maxLength={120}
@@ -102,7 +102,7 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                     <textarea
                         required
                         rows={4}
-                        className="w-full rounded-md border border-white/20 p-2 bg-white/10 text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none placeholder-slate-400"
+                        className="w-full rounded-md border border-white/20 p-2 bg-[#1F2022] text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none placeholder-slate-400"
                         value={formData.description}
                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                     />
@@ -112,7 +112,7 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-200">Status</label>
                         <select
-                            className="w-full rounded-md border border-white/20 p-2 bg-white/10 text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+                            className="w-full rounded-md border border-white/20 p-2 bg-[#1F2022] text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
                             value={formData.status}
                             onChange={e => setFormData({ ...formData, status: e.target.value as IssueStatus })}
                         >
@@ -126,7 +126,7 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                         <label className="text-sm font-medium text-slate-200">Assigned To</label>
                         <select
                             disabled={!canAssign}
-                            className="w-full rounded-md border border-white/20 p-2 bg-white/10 text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none disabled:bg-white/5 disabled:text-slate-500"
+                            className="w-full rounded-md border border-white/20 p-2 bg-[#1F2022] text-slate-100 focus:ring-2 focus:ring-cyan-500 focus:outline-none disabled:bg-[#1F2022]/50 disabled:text-slate-500"
                             value={formData.assignedTo || ''}
                             onChange={e => setFormData({ ...formData, assignedTo: e.target.value || null })}
                         >
