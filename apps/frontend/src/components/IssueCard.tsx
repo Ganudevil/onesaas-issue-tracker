@@ -13,7 +13,7 @@ interface IssueCardProps {
 
 export const IssueCard: React.FC<IssueCardProps & { onDelete?: (id: string) => void }> = ({ issue, createdUser, assignedUser, onClick, onDelete }) => {
     return (
-        <Card className="bg-[#1e1b4b]/40 border border-purple-500/30 backdrop-blur-md text-slate-100 shadow-[0_4px_20px_-1px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:border-cyan-400/60 transition-all duration-300 cursor-pointer relative group">
+        <Card className="bg-[#2A1E41] border border-white/10 backdrop-blur-md text-slate-100 shadow-lg hover:shadow-[0_0_15px_rgba(45,29,66,0.5)] hover:border-white/20 transition-all duration-300 cursor-pointer relative group">
             <div onClick={onClick}>
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">

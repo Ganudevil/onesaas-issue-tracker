@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
     };
 
     return (
-        <div className="border-b border-white/10 bg-white/5 backdrop-blur-md relative z-50">
+        <div className="border-b border-white/10 bg-[#1F2022] backdrop-blur-md relative z-50">
             <div className="flex h-16 items-center justify-between px-3 sm:px-4 max-w-7xl mx-auto">
                 <div className="flex items-center space-x-4">
                     <div

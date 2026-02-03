@@ -94,8 +94,8 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                 </Button>
             </div>
 
-            <div className="bg-white/5 backdrop-blur-md rounded-lg border border-white/10 shadow-sm overflow-hidden text-slate-100">
-                <div className="p-4 sm:p-6 border-b border-white/10 bg-white/5">
+            <div className="bg-[#2A1E41] backdrop-blur-md rounded-lg border border-white/10 shadow-sm overflow-hidden text-slate-100">
+                <div className="p-4 sm:p-6 border-b border-white/10 bg-[#1F2022]">
                     <div className="flex flex-col gap-4">
                         <div>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
@@ -142,8 +142,8 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                 <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                     <div className="lg:col-span-2 space-y-6">
                         <div>
-                            <h3 className="text-sm font-medium text-slate-500 mb-2">Description</h3>
-                            <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">
+                            <h3 className="text-sm font-medium text-[#B0B3C0] mb-2">Description</h3>
+                            <p className="text-slate-100 whitespace-pre-wrap leading-relaxed">
                                 {issue.description}
                             </p>
                         </div>
@@ -154,7 +154,7 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                     </div>
 
                     <div className="space-y-6">
-                        <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                        <div className="bg-[#1F2022] p-4 rounded-lg border border-white/10">
                             <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
                                 Details
                             </h4>
@@ -182,8 +182,8 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                                 </div>
 
                                 <div>
-                                    <span className="block text-slate-400 text-xs mb-1">Last Updated</span>
-                                    <span className="text-slate-600">{new Date(issue.updatedAt).toLocaleDateString()}</span>
+                                    <span className="block text-[#B0B3C0] text-xs mb-1">Last Updated</span>
+                                    <span className="text-slate-300">{new Date(issue.updatedAt).toLocaleDateString()}</span>
                                 </div>
                             </div>
                         </div>
