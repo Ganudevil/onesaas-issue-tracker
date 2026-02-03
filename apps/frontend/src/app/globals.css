@@ -15,8 +15,8 @@
 html {
   height: 100%;
   min-height: 100vh;
-  /* Teal to Purple Gradient per User Request */
-  background: linear-gradient(90deg, #00736E 0%, #6A00C9 100%) !important;
+  /* Dark Purple/Blue Gradient from Palette */
+  background: linear-gradient(90deg, #2D1D42 0%, #2A1E41 50%, #281F41 100%) !important;
   background-attachment: fixed !important;
 }
 
