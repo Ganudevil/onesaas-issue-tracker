@@ -12,7 +12,7 @@ export default function AssignedIssuesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen text-slate-100">
             <Navbar />
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <IssueList onNavigate={handleNavigate} onlyMyIssues={true} />

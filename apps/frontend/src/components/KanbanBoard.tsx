@@ -74,7 +74,7 @@ export function KanbanBoard() {
             <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                 {/* To Do Column */}
                 <div className="w-full md:w-1/3">
-                    <h3 className="font-bold mb-3 md:mb-4 text-slate-900 text-base md:text-lg">To Do</h3>
+                    <h3 className="font-bold mb-3 md:mb-4 text-slate-100 text-base md:text-lg">To Do</h3>
                     <div className="space-y-3 md:space-y-4">
                         {todoIssues.map(i => {
                             const createdUser = users.find(u => u.id === i.createdBy);
@@ -93,7 +93,7 @@ export function KanbanBoard() {
                 </div>
                 {/* In Progress Column */}
                 <div className="w-full md:w-1/3">
-                    <h3 className="font-bold mb-3 md:mb-4 text-slate-900 text-base md:text-lg">In Progress</h3>
+                    <h3 className="font-bold mb-3 md:mb-4 text-slate-100 text-base md:text-lg">In Progress</h3>
                     <div className="space-y-3 md:space-y-4">
                         {inProgressIssues.map(i => {
                             const createdUser = users.find(u => u.id === i.createdBy);
@@ -112,7 +112,7 @@ export function KanbanBoard() {
                 </div>
                 {/* Done Column */}
                 <div className="w-full md:w-1/3">
-                    <h3 className="font-bold mb-3 md:mb-4 text-slate-900 text-base md:text-lg">Done</h3>
+                    <h3 className="font-bold mb-3 md:mb-4 text-slate-100 text-base md:text-lg">Done</h3>
                     <div className="space-y-3 md:space-y-4">
                         {doneIssues.map(i => {
                             const createdUser = users.find(u => u.id === i.createdBy);
