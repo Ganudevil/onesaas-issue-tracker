@@ -2,7 +2,7 @@ import React from 'react';
 
 export const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => {
     return (
-        <div className={`rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm text-slate-100 shadow-sm ${className}`}>
+        <div className={`rounded-lg border border-[var(--border-card)] bg-[var(--bg-card)] backdrop-blur-sm text-[var(--text-primary)] shadow-sm ${className}`}>
             {children}
         </div>
     );
@@ -14,6 +14,10 @@ export const CardHeader: React.FC<{ children: React.ReactNode; className?: strin
 
 export const CardTitle: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
     <h3 className={`text-lg font-semibold leading-none tracking-tight ${className}`}>{children}</h3>
+);
+
+export const CardDescription: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
+    <p className={`text-sm text-[var(--text-muted)] ${className}`}>{children}</p>
 );
 
 export const CardContent: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
