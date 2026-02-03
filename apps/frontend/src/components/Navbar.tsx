@@ -38,7 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
                         onClick={() => router.push('/issues')}
                     >
                         <Image
-                            src="/logo.png"
+                            src="/Onesaslogo.png"
                             alt="oneSAAS"
                             width={180}
                             height={50}
