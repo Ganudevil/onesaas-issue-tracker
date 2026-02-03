@@ -37,14 +37,16 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
                         className="cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => router.push('/issues')}
                     >
-                        <Image
-                            src="/logo.png"
-                            alt="oneSAAS"
-                            width={140}
-                            height={40}
-                            className="h-10 w-auto object-contain"
-                            priority
-                        />
+                        {/* Replaced Image with Text to avoid white background issue */}
+                        <div className="flex items-center gap-1">
+                            <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 shadow-lg shadow-blue-500/20">
+                                <span className="text-white font-bold text-lg">1</span>
+                            </div>
+                            <span className="text-xl font-bold tracking-tight">
+                                <span className="text-slate-100">one</span>
+                                <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">SAAS</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
 
