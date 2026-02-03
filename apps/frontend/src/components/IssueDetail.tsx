@@ -94,12 +94,12 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                 </Button>
             </div>
 
-            <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-                <div className="p-4 sm:p-6 border-b bg-slate-50">
+            <div className="bg-white/5 backdrop-blur-md rounded-lg border border-white/10 shadow-sm overflow-hidden text-slate-100">
+                <div className="p-4 sm:p-6 border-b border-white/10 bg-white/5">
                     <div className="flex flex-col gap-4">
                         <div>
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                                <h1 className="text-xl sm:text-2xl font-bold text-black">{issue.title}</h1>
+                                <h1 className="text-xl sm:text-2xl font-bold text-slate-100">{issue.title}</h1>
                                 <span className={`px-2 py-1 rounded-full text-xs font-semibold w-fit ${STATUS_COLORS[issue.status]}`}>
                                     {STATUS_LABELS[issue.status]}
                                 </span>
@@ -154,7 +154,7 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                     </div>
 
                     <div className="space-y-6">
-                        <div className="bg-slate-50 p-4 rounded-lg border">
+                        <div className="bg-white/5 p-4 rounded-lg border border-white/10">
                             <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
                                 Details
                             </h4>
@@ -168,7 +168,7 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                                                 <div className="h-6 w-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold mr-2">
                                                     {assignedUser.displayName.charAt(0)}
                                                 </div>
-                                                <span className="font-medium text-black">{assignedUser.displayName}</span>
+                                                <span className="font-medium text-slate-100">{assignedUser.displayName}</span>
                                             </>
                                         ) : (
                                             <span className="text-slate-500 italic">Unassigned</span>

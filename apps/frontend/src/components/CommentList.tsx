@@ -54,7 +54,7 @@ export const CommentList: React.FC<CommentListProps> = ({ issueId, refreshTrigge
 
     return (
         <div className="space-y-6">
-            <h3 className="text-sm font-medium text-black">Comments ({comments.length})</h3>
+            <h3 className="text-sm font-medium text-slate-200">Comments ({comments.length})</h3>
 
             <div className="space-y-4">
                 {comments.map(comment => (
@@ -64,9 +64,9 @@ export const CommentList: React.FC<CommentListProps> = ({ issueId, refreshTrigge
                                 <UserIcon className="h-4 w-4 text-slate-500" />
                             </div>
                         </div>
-                        <div className="flex-1 bg-slate-50 rounded-lg p-3 group">
+                        <div className="flex-1 bg-white/5 border border-white/10 rounded-lg p-3 group">
                             <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm font-medium text-black">
+                                <span className="text-sm font-medium text-slate-100">
                                     {users[comment.createdBy]?.displayName || 'Unknown'}
                                 </span>
                                 <div className="flex items-center gap-2">
@@ -93,7 +93,7 @@ export const CommentList: React.FC<CommentListProps> = ({ issueId, refreshTrigge
                                     )}
                                 </div>
                             </div>
-                            <p className="text-sm text-black whitespace-pre-wrap">{comment.text}</p>
+                            <p className="text-sm text-slate-200 whitespace-pre-wrap">{comment.text}</p>
                         </div>
                     </div>
                 ))}
@@ -101,7 +101,7 @@ export const CommentList: React.FC<CommentListProps> = ({ issueId, refreshTrigge
 
             <form onSubmit={handleSubmit} className="flex gap-2">
                 <input
-                    className="flex-1 rounded-md border border-slate-300 p-2 text-black text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="flex-1 rounded-md border border-white/20 p-2 bg-white/10 text-slate-100 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none placeholder-slate-400"
                     placeholder="Add a comment..."
                     value={text}
                     onChange={e => setText(e.target.value)}
