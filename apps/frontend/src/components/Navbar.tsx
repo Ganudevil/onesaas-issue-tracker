@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 
 import { useAuthStore } from '../store/useAuthStore';
@@ -33,10 +34,17 @@ export const Navbar: React.FC<NavbarProps> = ({ }) => {
             <div className="flex h-16 items-center justify-between px-3 sm:px-4 max-w-7xl mx-auto">
                 <div className="flex items-center space-x-4">
                     <div
-                        className="font-bold text-xl text-blue-700 cursor-pointer hover:opacity-80 transition-opacity"
+                        className="cursor-pointer hover:opacity-80 transition-opacity"
                         onClick={() => router.push('/issues')}
                     >
-                        oneSAAS
+                        <Image
+                            src="/logo.png"
+                            alt="oneSAAS"
+                            width={140}
+                            height={40}
+                            className="h-10 w-auto object-contain"
+                            priority
+                        />
                     </div>
                 </div>
 
