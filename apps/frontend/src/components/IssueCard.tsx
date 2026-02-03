@@ -13,7 +13,7 @@ interface IssueCardProps {
 
 export const IssueCard: React.FC<IssueCardProps & { onDelete?: (id: string) => void }> = ({ issue, createdUser, assignedUser, onClick, onDelete }) => {
     return (
-        <Card className="bg-[#2A1E41] border border-white/10 backdrop-blur-md text-slate-100 shadow-lg hover:shadow-[0_0_15px_rgba(45,29,66,0.5)] hover:border-white/20 transition-all duration-300 cursor-pointer relative group">
+        <Card className="bg-[var(--bg-card)] border border-[var(--border-card)] backdrop-blur-md text-[var(--text-primary)] shadow-lg hover:bg-[var(--bg-card-hover)] hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:border-[var(--border-active)] transition-all duration-300 cursor-pointer relative group">
             <div onClick={onClick}>
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
@@ -32,13 +32,14 @@ export const IssueCard: React.FC<IssueCardProps & { onDelete?: (id: string) => v
                     <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 text-xs text-slate-500">
                         <div className="flex items-center flex-wrap gap-2 sm:gap-3">
                             <div className="flex items-center">
-                                <User className="h-3 w-3 mr-1 flex-shrink-0" />
-                                <span className="truncate max-w-[120px] sm:max-w-none">{createdUser?.displayName || 'Unknown'}</span>
+                                <CardDescription className="flex items-center text-[var(--text-muted)] mt-1">
+                                    Created by <span className="font-semibold text-[var(--text-secondary)] mx-1 truncate max-w-[80px] sm:max-w-none">{createdUser?.displayName || 'Unknown'}</span>
+                                </CardDescription>
                             </div>
                             {assignedUser && (
-                                <div className="flex items-center text-cyan-400">
-                                    <span className="mr-1">→</span>
-                                    <span className="truncate max-w-[120px] sm:max-w-none">{assignedUser.displayName}</span>
+                                <div className="flex items-center">
+                                    <span className="text-xs text-[var(--text-muted)]">Assigned to</span>
+                                    <span className="flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)] ml-1">{assignedUser.displayName}</span>
                                 </div>
                             )}
                         </div>

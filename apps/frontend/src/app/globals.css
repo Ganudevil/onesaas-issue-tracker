@@ -1,8 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  --background: #2D1D42;
-  --foreground: #f8fafc;
+  /* Backgrounds */
+  --bg-main: linear-gradient(135deg, #0F1229, #1A1F4A, #2A2F6B);
+  --bg-header: #14183A;
+  --bg-card: #23265A;
+  --bg-card-hover: #2C3070;
+
+  /* Borders & Glow */
+  --border-card: #343A8A;
+  --border-active: #3B82F6;
+
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #B8C0FF;
+  --text-muted: #8B93D6;
+
+  /* Status Colors */
+  --status-open-bg: #1F8F5F;
+  --status-open-text: #DFFFEF;
+
+  --status-progress-bg: #2563EB;
+  --status-progress-text: #E0ECFF;
+
+  --status-closed-bg: #6B7280;
+  --status-closed-text: #F1F5F9;
+
+  --background: #0F1229;
+  --foreground: #FFFFFF;
 }
 
 @theme inline {
@@ -15,9 +40,30 @@
 html {
   height: 100%;
   min-height: 100vh;
-  /* User requested gradient */
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4c1d95 100%) !important;
+  /* Use variable for background */
+  background: var(--bg-main) !important;
   background-attachment: fixed !important;
+}
+
+/* Status Classes */
+.status-open {
+  background-color: var(--status-open-bg) !important;
+  color: var(--status-open-text) !important;
+}
+
+.status-in-progress {
+  background-color: var(--status-progress-bg) !important;
+  color: var(--status-progress-text) !important;
+}
+
+.status-closed {
+  background-color: var(--status-closed-bg) !important;
+  color: var(--status-closed-text) !important;
+}
+
+.card-active {
+  box-shadow: 0 0 0 1px var(--border-active),
+    0 0 18px rgba(59, 130, 246, 0.45);
 }
 
 body {
