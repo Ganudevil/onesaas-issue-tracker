@@ -13,12 +13,12 @@ interface IssueCardProps {
 
 export const IssueCard: React.FC<IssueCardProps & { onDelete?: (id: string) => void }> = ({ issue, createdUser, assignedUser, onClick, onDelete }) => {
     return (
-        <Card className="hover:shadow-md transition-shadow cursor-pointer relative group">
+        <Card className="bg-white/5 border-white/10 backdrop-blur-sm text-slate-100 hover:shadow-[0_0_15px_rgba(56,189,248,0.3)] hover:border-cyan-500/30 transition-all duration-300 cursor-pointer relative group">
             <div onClick={onClick}>
                 <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                         <CardTitle>
-                            <span className="text-base font-medium text-black">{issue.title}</span>
+                            <span className="text-base font-medium text-slate-100 group-hover:text-cyan-400 transition-colors">{issue.title}</span>
                         </CardTitle>
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[issue.status] || ''}`}>
                             {STATUS_LABELS[issue.status] || issue.status}
@@ -26,17 +26,17 @@ export const IssueCard: React.FC<IssueCardProps & { onDelete?: (id: string) => v
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-sm text-gray-800 line-clamp-2 mb-3 sm:mb-4">
+                    <p className="text-sm text-slate-400 line-clamp-2 mb-3 sm:mb-4">
                         {issue.description}
                     </p>
-                    <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 text-xs text-gray-600">
+                    <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 text-xs text-slate-500">
                         <div className="flex items-center flex-wrap gap-2 sm:gap-3">
                             <div className="flex items-center">
                                 <User className="h-3 w-3 mr-1 flex-shrink-0" />
                                 <span className="truncate max-w-[120px] sm:max-w-none">{createdUser?.displayName || 'Unknown'}</span>
                             </div>
                             {assignedUser && (
-                                <div className="flex items-center text-blue-600">
+                                <div className="flex items-center text-cyan-400">
                                     <span className="mr-1">→</span>
                                     <span className="truncate max-w-[120px] sm:max-w-none">{assignedUser.displayName}</span>
                                 </div>
