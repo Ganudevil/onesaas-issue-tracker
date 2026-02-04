@@ -155,7 +155,7 @@ export class IssuesService {
       if (updateDto.status) { fields.push(`status = $${idx++}`); values.push(updateDto.status); }
       if (updateDto.priority) { fields.push(`priority = $${idx++}`); values.push(updateDto.priority); }
       if (updateDto.assignedTo) { fields.push(`assigned_to = $${idx++}`); values.push(updateDto.assignedTo); }
-      if (updateDto.image) { fields.push(`image = $${idx++}`); values.push(updateDto.image); }
+      if ('image' in updateDto) { fields.push(`image = $${idx++}`); values.push(updateDto.image); }
 
       fields.push(`updated_at = NOW()`);
 
