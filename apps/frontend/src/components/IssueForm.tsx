@@ -103,40 +103,66 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
         if (fileInput) fileInput.value = '';
     };
 
+
     const resizeImage = (file: File, callback: (result: string) => void) => {
+        console.log('Starting image resize...');
         const reader = new FileReader();
+
+        reader.onerror = (error) => {
+            console.error('FileReader error:', error);
+            alert('Failed to read image file. Please try again.');
+        };
+
         reader.onload = (event) => {
+            console.log('File read successfully, creating image...');
             const img = new Image();
+
+            img.onerror = (error) => {
+                console.error('Image load error:', error);
+                alert('Failed to load image. Please try a different image.');
+            };
+
             img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-                const MAX_WIDTH = 800;
-                const MAX_HEIGHT = 800;
+                try {
+                    console.log('Image loaded, resizing...', img.width, 'x', img.height);
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
 
-                if (width > height) {
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
                     }
-                } else {
-                    if (height > MAX_HEIGHT) {
-                        width *= MAX_HEIGHT / height;
-                        height = MAX_HEIGHT;
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        throw new Error('Failed to get canvas context');
                     }
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    console.log('Image resized successfully, size:', Math.round(dataUrl.length / 1024), 'KB');
+                    callback(dataUrl);
+                } catch (error) {
+                    console.error('Resize error:', error);
+                    alert('Failed to resize image. Please try a smaller image.');
                 }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx?.drawImage(img, 0, 0, width, height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                callback(dataUrl);
             };
             img.src = event.target?.result as string;
         };
         reader.readAsDataURL(file);
     };
+
 
 
     // RBAC for assignment
