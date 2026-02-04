@@ -23,6 +23,7 @@ export interface Issue {
     id: string; // UUID
     title: string; // 3-120 chars
     description: string;
+    image?: string; // Base64 string
     status: IssueStatus;
     createdBy: string; // user_id
     assignedTo: string | null; // user_id

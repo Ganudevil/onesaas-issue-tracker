@@ -148,6 +148,17 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                             </p>
                         </div>
 
+                        {issue.image && (
+                            <div className="mt-4">
+                                <h3 className="text-sm font-medium text-[var(--text-muted)] mb-2">Attachment</h3>
+                                <img
+                                    src={issue.image}
+                                    alt="Issue Attachment"
+                                    className="max-w-full rounded-lg border border-[var(--border-card)] shadow-sm max-h-96 object-contain bg-[var(--bg-header)]"
+                                />
+                            </div>
+                        )}
+
                         <div className="pt-6 border-t">
                             <CommentList issueId={issue.id} refreshTrigger={tick} />
                         </div>
