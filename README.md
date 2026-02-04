@@ -26,8 +26,8 @@ graph TD
 
 Here is "Each and Every Thing" used in this project and **WHY**:
 
-### 1. Frontend: **React + Vite**
-*   **What**: React is the library for building the UI. Vite is the build tool (replacing generic Webpack) for instant start times.
+### 1. Frontend: **Next.js**
+*   **What**: Next.js is the Framework for building the UI. Vite is the build tool (replacing generic Webpack) for instant start times.
 *   **Why**: React is the industry standard for dynamic web apps. Vite offers a superior developer experience (fast HMR).
 *   **Key Dependencies**:
     *   `axios`: For making HTTP requests to the backend.
