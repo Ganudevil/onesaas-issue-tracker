@@ -17,6 +17,7 @@ export class IssuesService {
       id: i.id,
       title: i.title,
       description: i.description,
+      image: i.image,
       status: i.status || 'open',
       priority: i.priority || 'medium',
       createdBy: i.created_by,
@@ -99,15 +100,16 @@ export class IssuesService {
     try {
       this.logger.log(`Creating issue for tenant ${tenantId}`, createDto);
       const result = await this.databaseService.query(
-        `INSERT INTO "${schema}".issues (title, description, status, priority, created_by, assigned_to) 
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        `INSERT INTO "${schema}".issues (title, description, status, priority, created_by, assigned_to, image) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
         [
           createDto.title,
           createDto.description,
           createDto.status || 'open',
           createDto.priority || 'medium',
           createDto.createdBy,
-          createDto.assignedTo
+          createDto.assignedTo,
+          createDto.image
         ]
       );
 
@@ -152,7 +154,9 @@ export class IssuesService {
       if (updateDto.description) { fields.push(`description = $${idx++}`); values.push(updateDto.description); }
       if (updateDto.status) { fields.push(`status = $${idx++}`); values.push(updateDto.status); }
       if (updateDto.priority) { fields.push(`priority = $${idx++}`); values.push(updateDto.priority); }
+      if (updateDto.priority) { fields.push(`priority = $${idx++}`); values.push(updateDto.priority); }
       if (updateDto.assignedTo) { fields.push(`assigned_to = $${idx++}`); values.push(updateDto.assignedTo); }
+      if (updateDto.image) { fields.push(`image = $${idx++}`); values.push(updateDto.image); }
 
       fields.push(`updated_at = NOW()`);
 
@@ -271,6 +275,9 @@ export class IssuesService {
       );
       await this.databaseService.query(
         `ALTER TABLE "${schema}".users ADD COLUMN IF NOT EXISTS display_name text`
+      );
+      await this.databaseService.query(
+        `ALTER TABLE "${schema}".issues ADD COLUMN IF NOT EXISTS image text`
       );
     } catch (error) {
       this.logger.error(`Error fixing schema`, error);
