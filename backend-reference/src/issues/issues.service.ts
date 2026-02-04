@@ -132,7 +132,7 @@ export class IssuesService {
         issueId: issue.id,
         title: issue.title,
         priority: issue.priority, // Added priority
-        url: 'http://localhost:3000' // Added URL for context
+        url: process.env.FRONTEND_URL || 'http://localhost:3000' // Dynamic URL for production
       });
 
       return issue;
