@@ -151,11 +151,32 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                         {issue.image && (
                             <div className="mt-4">
                                 <h3 className="text-sm font-medium text-[var(--text-muted)] mb-2">Attachment</h3>
-                                <img
-                                    src={issue.image}
-                                    alt="Issue Attachment"
-                                    className="max-w-full rounded-lg border border-[var(--border-card)] shadow-sm max-h-96 object-contain bg-[var(--bg-header)]"
-                                />
+                                <div className="relative w-fit">
+                                    <img
+                                        src={issue.image}
+                                        alt="Issue Attachment"
+                                        className="max-w-full rounded-lg border border-[var(--border-card)] shadow-sm max-h-96 object-contain bg-[var(--bg-header)]"
+                                    />
+                                    {(role === UserRole.ADMIN || user?.id === issue.createdBy) && (
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                if (confirm('Remove this image?')) {
+                                                    try {
+                                                        await db.updateIssue(issue.id, { image: null as any }, token!);
+                                                        setIssue({ ...issue, image: undefined });
+                                                    } catch (error: any) {
+                                                        alert('Failed to remove image: ' + error.message);
+                                                    }
+                                                }
+                                            }}
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-lg transform transition-transform hover:scale-110"
+                                            title="Remove image"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         )}
 

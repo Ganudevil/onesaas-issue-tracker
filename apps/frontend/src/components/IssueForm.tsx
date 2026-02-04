@@ -86,6 +86,14 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
         }
     };
 
+    const removeImage = () => {
+        setImagePreview(null);
+        setFormData({ ...formData, image: undefined });
+        // Reset file input
+        const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+    };
+
     const resizeImage = (file: File, callback: (result: string) => void) => {
         const reader = new FileReader();
         reader.onload = (event) => {
