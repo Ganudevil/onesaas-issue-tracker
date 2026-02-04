@@ -27,6 +27,13 @@ export class CreateIssueDto {
   description: string;
 
   @ApiPropertyOptional({
+    description: 'Base64 encoded image string',
+  })
+  @IsOptional()
+  @IsString()
+  image?: string;
+
+  @ApiPropertyOptional({
     description: 'Current status of the issue',
     enum: IssueStatus,
     default: IssueStatus.OPEN,
@@ -79,6 +86,13 @@ export class UpdateIssueDto {
   description?: string;
 
   @ApiPropertyOptional({
+    description: 'Base64 encoded image string',
+  })
+  @IsOptional()
+  @IsString()
+  image?: string;
+
+  @ApiPropertyOptional({
     description: 'Current status of the issue',
     enum: IssueStatus,
   })
@@ -110,6 +124,9 @@ export class IssueResponseDto {
 
   @ApiProperty({ description: 'Issue description' })
   description: string;
+
+  @ApiPropertyOptional({ description: 'Base64 encoded image string' })
+  image?: string;
 
   @ApiProperty({ enum: IssueStatus, description: 'Current status' })
   status: IssueStatus;
