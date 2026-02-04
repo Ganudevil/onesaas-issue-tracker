@@ -79,10 +79,19 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            resizeImage(file, (result) => {
-                setImagePreview(result);
-                setFormData({ ...formData, image: result });
-            });
+            console.log('File selected:', file.name, file.type, file.size);
+            try {
+                resizeImage(file, (result) => {
+                    console.log('Image resized successfully');
+                    setImagePreview(result);
+                    setFormData({ ...formData, image: result });
+                });
+            } catch (error) {
+                console.error('Error processing image:', error);
+                alert('Failed to process image. Please try a different image.');
+            }
+        } else {
+            console.log('No file selected');
         }
     };
 
