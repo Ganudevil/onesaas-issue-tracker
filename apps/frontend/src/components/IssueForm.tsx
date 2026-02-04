@@ -4,7 +4,7 @@ import { db } from '../services/db';
 import { useAuthStore } from '../store/useAuthStore';
 import { Button } from './ui/Button';
 import { Issue, IssueStatus, UserRole, User } from '../types';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Camera, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface IssueFormProps {
@@ -18,8 +18,10 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
         title: '',
         description: '',
         status: IssueStatus.OPEN,
-        assignedTo: null
+        assignedTo: null,
+        image: undefined
     });
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -35,6 +37,9 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                 const existing = await db.getIssueById(issueId, token);
                 if (existing) {
                     setFormData(existing);
+                    if (existing.image) {
+                        setImagePreview(existing.image);
+                    }
                 }
             }
         };
@@ -58,6 +63,7 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                     description: formData.description,
                     status: formData.status || IssueStatus.OPEN,
                     assignedTo: formData.assignedTo || null,
+                    image: formData.image,
                     createdBy: user.id
                 }, token);
                 router.push(`/issues/${created.id}`);
@@ -68,6 +74,24 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                setImagePreview(result);
+                setFormData({ ...formData, image: result });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setImagePreview(null);
+        setFormData({ ...formData, image: undefined });
     };
 
     // RBAC for assignment
@@ -106,6 +130,48 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
                         value={formData.description}
                         onChange={e => setFormData({ ...formData, description: e.target.value })}
                     />
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-200">Attachment</label>
+                    <div className="flex flex-col gap-3">
+                        {!imagePreview ? (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    id="image-upload"
+                                    onChange={handleImageChange}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    onClick={() => document.getElementById('image-upload')?.click()}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Camera className="h-4 w-4" />
+                                    Upload Image
+                                </Button>
+                                <span className="text-xs text-slate-400">Supported: JPG, PNG</span>
+                            </div>
+                        ) : (
+                            <div className="relative w-fit">
+                                <img
+                                    src={imagePreview}
+                                    alt="Preview"
+                                    className="max-h-60 rounded-md border border-[var(--border-card)]"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={removeImage}
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 shadow-md transform transition-transform hover:scale-110"
+                                >
+                                    <X className="h-3 w-3" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
