@@ -129,10 +129,6 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
         reader.readAsDataURL(file);
     };
 
-    const removeImage = () => {
-        setImagePreview(null);
-        setFormData({ ...formData, image: undefined });
-    };
 
     // RBAC for assignment
     const canAssign = role === 'admin';
