@@ -1,7 +1,7 @@
 const { Novu } = require('@novu/node');
 require('dotenv').config();
 
-const API_KEY = process.env.NOVU_API_KEY;
+const API_KEY = '0e6ea8224d1faabe42f379cff81a2fc5';
 
 if (!API_KEY) {
     console.error("NOVU_API_KEY not found");
@@ -24,15 +24,15 @@ async function testTrigger() {
         });
 
         console.log("Triggering event...");
-        const response = await novu.trigger('issue-created', {
+        const eventName = 'issue-updated';
+        const response = await novu.trigger(eventName, {
             to: {
                 subscriberId: subscriberId
             },
             payload: {
-                issueId: "123",
-                title: "Test Issue Title",
-                url: "http://localhost:3000",
-                tenantId: "tenant1"
+                issueId: 'test-generic-123',
+                title: 'Test Issue Title - Generic Update',
+                url: 'https://frontend.com'
             }
         });
 

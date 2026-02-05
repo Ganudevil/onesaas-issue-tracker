@@ -7,7 +7,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/Button';
 import { LogOut, User as UserIcon, Menu, X } from 'lucide-react';
-import { NovuInbox } from './NovuInbox';
+import NovuInbox from './NovuInbox';
 
 interface NavbarProps {
     onNavigate?: (page: string) => void;
