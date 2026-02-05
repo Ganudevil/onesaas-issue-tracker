@@ -42,6 +42,15 @@ const workflows = [
             message: 'You have been assigned to: {{title}}',
         },
     },
+    {
+        name: 'Issue Updated',
+        identifier: 'issue-updated-q1m2',
+        description: 'Notify users when an issue is updated (title, description, priority, or image)',
+        template: {
+            subject: 'Issue Updated',
+            message: '{{changeType}} in issue: {{title}}',
+        },
+    },
 ];
 
 async function main() {
