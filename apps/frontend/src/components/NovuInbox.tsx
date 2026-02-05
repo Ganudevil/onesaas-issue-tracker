@@ -236,6 +236,14 @@ function CustomInbox() {
                                     window.location.href = `/issues/${notification.payload.issueId}`;
                                 }
                             }}
+                            onActionClick={(templateIdentifier: string, type: any, notification: any) => {
+                                // Handle action button clicks
+                                console.log('Action clicked:', { templateIdentifier, type, notification });
+                                // Navigate to issue on button click
+                                if (notification?.payload?.issueId) {
+                                    window.location.href = `/issues/${notification.payload.issueId}`;
+                                }
+                            }}
                             showUserPreferences={false}
                             header={() => <></>}
                             theme={{
