@@ -82,27 +82,28 @@ export default function DebugNovuPage() {
     );
 }
 
-return (
-    <div className="space-y-4">
-        <div className="text-sm text-gray-600 mb-4">
-            Note: To debug connection, check the browser console network tab for WebSocket connections to novu.co
-        </div>
+function ConnectionTester() {
+    return (
+        <div className="space-y-4">
+            <div className="text-sm text-gray-600 mb-4">
+                Note: To debug connection, check the browser console network tab for WebSocket connections to novu.co
+            </div>
 
-        <div className="p-4 border rounded bg-gray-50 text-center">
-            <PopoverNotificationCenter colorScheme="light">
-                {({ unseenCount }) => (
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-bold cursor-pointer">
-                        <span>🔔 Check Notifications</span>
-                        {unseenCount > 0 && (
-                            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                                {unseenCount}
-                            </span>
-                        )}
-                    </div>
-                )}
-            </PopoverNotificationCenter>
-            <p className="mt-2 text-xs text-gray-400">Click the button above to test the notification center content</p>
+            <div className="p-4 border rounded bg-gray-50 text-center">
+                <PopoverNotificationCenter colorScheme="light">
+                    {({ unseenCount }) => (
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-bold cursor-pointer">
+                            <span>🔔 Check Notifications</span>
+                            {(unseenCount || 0) > 0 && (
+                                <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                                    {unseenCount}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </PopoverNotificationCenter>
+                <p className="mt-2 text-xs text-gray-400">Click the button above to test the notification center content</p>
+            </div>
         </div>
-    </div>
-);
+    );
 }
