@@ -1,3 +1,5 @@
+'use client';
+
 import { Bell } from 'lucide-react';
 
 import {
@@ -16,9 +18,9 @@ export default function NovuInbox() {
     return (
         <NovuProvider
             subscriberId={userId}
-            applicationIdentifier={import.meta.env.VITE_NOVU_APP_ID || ''}
-            backendUrl={import.meta.env.VITE_NOVU_BACKEND_URL || 'https://api.novu.co'}
-            socketUrl={import.meta.env.VITE_NOVU_SOCKET_URL || 'https://ws.novu.co'}
+            applicationIdentifier={process.env.NEXT_PUBLIC_NOVU_APP_ID || ''}
+            backendUrl={process.env.NEXT_PUBLIC_NOVU_BACKEND_URL || 'https://api.novu.co'}
+            socketUrl={process.env.NEXT_PUBLIC_NOVU_SOCKET_URL || 'https://ws.novu.co'}
         >
             <CustomInbox />
         </NovuProvider>
@@ -31,7 +33,7 @@ function CustomInbox() {
             {({ unseenCount }) => (
                 <div style={{ cursor: 'pointer', position: 'relative', display: 'flex', alignItems: 'center' }}>
                     <Bell className="h-5 w-5 text-gray-600 hover:text-blue-600" />
-                    {unseenCount > 0 && (
+                    {(unseenCount || 0) > 0 && (
                         <span style={{
                             position: 'absolute',
                             top: '-5px',
@@ -47,7 +49,7 @@ function CustomInbox() {
                             justifyContent: 'center',
                             fontWeight: 'bold'
                         }}>
-                            {unseenCount > 99 ? '99+' : unseenCount}
+                            {(unseenCount || 0) > 99 ? '99+' : unseenCount}
                         </span>
                     )}
                 </div>
