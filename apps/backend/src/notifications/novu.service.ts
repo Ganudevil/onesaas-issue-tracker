@@ -31,7 +31,7 @@ export class NovuService {
         };
 
         try {
-            this.logger.log(`Triggering Novu event: ${eventName} for user: ${userId} in tenant: ${tenantId}`);
+            this.logger.log(`Triggering Novu event: ${eventName} for user: ${userId} in tenant: ${tenantId}, Payload: ${JSON.stringify(payload)}`);
             const response = await this.novu.trigger(eventName, {
                 to: subscriberDetails,
                 payload: {
