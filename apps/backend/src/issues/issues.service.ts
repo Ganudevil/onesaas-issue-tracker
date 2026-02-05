@@ -208,15 +208,29 @@ export class IssuesService {
         this.logger.log(`No assignment change detected in updateDto.`);
       }
 
-      // 3. Generic Update (Title, Description, Priority) - Only if not Status/Assign
+      // 3. Generic Update (Title, Description, Priority, Image) - Only if not Status/Assign
       if (!updateDto.status && !updateDto.assignedTo) {
         // Determine who to notify (assignee or creator)
         const targetUserId = updatedIssue.assignedTo || updatedIssue.createdBy;
         if (targetUserId) {
           const user = await this.getUser(targetUserId, tenantId);
-          await this.novuService.triggerEvent('issue-updated', tenantId, user, {
+
+          // Detect what changed to provide descriptive notification
+          let changeDescription = 'Issue updated';
+          if ('image' in updateDto) {
+            changeDescription = updateDto.image ? 'Image added' : 'Image deleted';
+          } else if (updateDto.title) {
+            changeDescription = 'Title updated';
+          } else if (updateDto.description) {
+            changeDescription = 'Description updated';
+          } else if (updateDto.priority) {
+            changeDescription = 'Priority updated';
+          }
+
+          await this.novuService.triggerEvent('issue-updated-q1m2', tenantId, user, {
             issueId: updatedIssue.id,
             title: updatedIssue.title,
+            changeType: changeDescription,
             url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
           });
         }
