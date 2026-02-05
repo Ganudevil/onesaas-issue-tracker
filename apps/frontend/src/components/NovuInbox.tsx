@@ -15,7 +15,8 @@ const FALLBACK_NOVU_APP_ID = 'rPNktu-ZF0Xq';
 export function NovuInbox() {
     const { user } = useAuthStore();
     // Use environment variable if available, otherwise use fallback
-    const appIdentifier = process.env.NEXT_PUBLIC_NOVU_APP_ID || FALLBACK_NOVU_APP_ID;
+    // FORCE FALLBACK for now to ensure alignment with backend Development Key
+    const appIdentifier = FALLBACK_NOVU_APP_ID; // process.env.NEXT_PUBLIC_NOVU_APP_ID || FALLBACK_NOVU_APP_ID;
 
     // Debug logging
     console.log('[NovuInbox] Debug:', {
@@ -246,8 +247,13 @@ function CustomInbox() {
                                     },
                                     notificationItem: {
                                         background: '#ffffff',
-                                        color: '#1e293b',
+                                        color: '#000000',
                                     }
+                                }
+                            }}
+                            styles={{
+                                notificationItem: {
+                                    root: { color: '#000000 !important', fontWeight: 500 }
                                 }
                             }}
                         />
