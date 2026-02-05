@@ -114,6 +114,18 @@ function CustomInbox() {
     const { removeNotification: removeFn } = useRemoveNotification();
     const popoverRef = useRef<HTMLDivElement>(null);
 
+    // Debug logging - check what data we're getting
+    useEffect(() => {
+        console.log('🔔 NOVU DEBUG:');
+        console.log('  unseenCount:', unseenCount);
+        console.log('  notifications:', notifications);
+        console.log('  isArray:', Array.isArray(notifications));
+        console.log('  length:', notifications?.length);
+        if (notifications && notifications.length > 0) {
+            console.log('  first notification:', notifications[0]);
+        }
+    }, [unseenCount, notifications]);
+
     // Close on click outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -127,7 +139,11 @@ function CustomInbox() {
         };
     }, []);
 
-    const togglePopover = () => setIsOpen(!isOpen);
+    const togglePopover = () => {
+        console.log('📣 Toggling popover, isOpen:', !isOpen);
+        console.log('📣 Current notifications:', notifications);
+        setIsOpen(!isOpen);
+    };
 
     const handleNotificationClick = async (notification: any) => {
         // Mark as read
