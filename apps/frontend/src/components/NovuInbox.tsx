@@ -2,17 +2,22 @@
 
 import { Bell } from 'lucide-react';
 
-import {
-    NovuProvider,
-    PopoverNotificationCenter
-} from '@novu/notification-center';
+import * as NovuNotificationCenter from '@novu/notification-center';
+const { NovuProvider, PopoverNotificationCenter } = NovuNotificationCenter;
 import { useAuthStore } from '../store/useAuthStore';
 
 export default function NovuInbox() {
     const userId = useAuthStore((state) => state.user?.email);
     const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID;
 
-    if (!userId || !appId) {
+    // Safety check for critical components to prevent React Error #130
+    if (!NovuProvider || !PopoverNotificationCenter || !userId || !appId) {
+        console.warn('NovuInbox: Missing required components or config', {
+            hasNovuProvider: !!NovuProvider,
+            hasPopover: !!PopoverNotificationCenter,
+            hasUserId: !!userId,
+            hasAppId: !!appId
+        });
         return null;
     }
 
