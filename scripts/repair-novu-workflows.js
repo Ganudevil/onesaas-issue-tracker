@@ -70,16 +70,28 @@ async function main() {
             console.log(`\n🔄 Updating existing workflow: ${config.name} (${config.identifier})...`);
 
             // Re-create the steps structure
-            const steps = [{
-                template: {
-                    type: 'in_app',
-                    content: config.template.message,
-                    subject: config.template.subject,
-                    cta: { action: { buttons: [] } } // Simple CTA
+            const steps = [
+                {
+                    template: {
+                        type: 'in_app',
+                        content: config.template.message,
+                        subject: config.template.subject,
+                        cta: { action: { buttons: [] } } // Simple CTA
+                    },
+                    active: true,
+                    filters: []
                 },
-                active: true,
-                filters: []
-            }];
+                {
+                    template: {
+                        type: 'email',
+                        subject: config.template.subject,
+                        content: [{ type: 'text', content: config.template.message.replace(/\n/g, '<br>') }], // basic text content
+                        layoutId: null
+                    },
+                    active: true,
+                    filters: []
+                }
+            ];
 
             try {
                 await novu.notificationTemplates.update(existing._id, {
@@ -110,6 +122,14 @@ async function main() {
                                 type: 'in_app',
                                 content: config.template.message,
                                 subject: config.template.subject,
+                            },
+                            active: true,
+                        },
+                        {
+                            template: {
+                                type: 'email',
+                                subject: config.template.subject,
+                                content: [{ type: 'text', content: config.template.message.replace(/\n/g, '<br>') }],
                             },
                             active: true,
                         },
