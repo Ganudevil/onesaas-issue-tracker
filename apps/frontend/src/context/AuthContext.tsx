@@ -95,12 +95,25 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
                 } catch (err) {
                     console.error("Failed to sync user with DB", err);
                     // Fallback to local user if sync fails so app loads
-                    setUser({
-                        id: 'temp-id', // This might break FKs but allows UI to load
+                    const fallbackUser: User = {
+                        id: auth.user.profile.sub || 'temp-id',
                         email: auth.user.profile.email || '',
                         role: UserRole.MEMBER, // Default to member on fail
                         displayName: auth.user.profile.preferred_username || 'User'
-                    });
+                    };
+                    setUser(fallbackUser);
+
+                    // Sync to AuthStore Session (Critical fix for "Sign In" loop)
+                    setSession(
+                        {
+                            id: fallbackUser.id,
+                            email: fallbackUser.email,
+                            name: fallbackUser.displayName,
+                        },
+                        token || '',
+                        currentTenant,
+                        fallbackUser.role as any
+                    );
                 } finally {
                     setIsDbSyncing(false);
                 }

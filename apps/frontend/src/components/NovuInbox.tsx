@@ -3,8 +3,19 @@
 import { Bell } from 'lucide-react';
 
 import * as NovuNotificationCenter from '@novu/notification-center';
-const { NovuProvider, PopoverNotificationCenter } = NovuNotificationCenter;
+
+// Universal import fallback to handle ESM/CJS interop differences on Vercel
+const NovuProvider = NovuNotificationCenter.NovuProvider ||
+    (NovuNotificationCenter as any).default?.NovuProvider;
+const PopoverNotificationCenter = NovuNotificationCenter.PopoverNotificationCenter ||
+    (NovuNotificationCenter as any).default?.PopoverNotificationCenter;
+
 import { useAuthStore } from '../store/useAuthStore';
+
+// START TELEMETRY
+const DEPLOY_TIMESTAMP = '2026-02-05-17-30-FIX-v3';
+console.log(`[NovuInbox] Init - Version: ${DEPLOY_TIMESTAMP}`);
+// END TELEMETRY
 
 export default function NovuInbox() {
     const userId = useAuthStore((state) => state.user?.email);
@@ -12,11 +23,13 @@ export default function NovuInbox() {
 
     // Safety check for critical components to prevent React Error #130
     if (!NovuProvider || !PopoverNotificationCenter || !userId || !appId) {
-        console.warn('NovuInbox: Missing required components or config', {
+        console.error('[NovuInbox] CRITICAL: Missing components or config', {
             hasNovuProvider: !!NovuProvider,
             hasPopover: !!PopoverNotificationCenter,
             hasUserId: !!userId,
-            hasAppId: !!appId
+            hasAppId: !!appId,
+            novLibKeys: Object.keys(NovuNotificationCenter),
+            timestamp: DEPLOY_TIMESTAMP
         });
         return null;
     }
