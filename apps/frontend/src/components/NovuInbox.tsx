@@ -240,46 +240,6 @@ function CustomInbox() {
                             }}
                             showUserPreferences={false}
                             header={() => <></>}
-                            listItem={(notification: any) => (
-                                <div style={{
-                                    position: 'relative',
-                                    padding: '12px 14px',
-                                    borderBottom: '1px solid #f1f5f9',
-                                    cursor: 'pointer'
-                                }}>
-                                    <div style={{ paddingRight: '30px' }}>
-                                        <div style={{ fontSize: '13px', fontWeight: notification.read ? 400 : 600 }}>
-                                            {notification.content || 'Notification'}
-                                        </div>
-                                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>
-                                            {notification.createdAt}
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(notification._id);
-                                        }}
-                                        style={{
-                                            position: 'absolute',
-                                            top: '12px',
-                                            right: '12px',
-                                            background: 'transparent',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            fontSize: '18px',
-                                            color: '#94a3b8',
-                                            padding: '0',
-                                            lineHeight: 1
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
-                                        onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
-                                        title="Remove notification"
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            )}
                         />
                     </div>
                 </div>
