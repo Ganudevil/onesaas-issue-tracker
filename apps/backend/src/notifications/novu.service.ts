@@ -8,7 +8,8 @@ export class NovuService {
     private readonly logger = new Logger(NovuService.name);
 
     constructor() {
-        const apiKey = process.env.NOVU_API_KEY;
+        // Fallback to hardcoded key if env var is missing/empty
+        const apiKey = process.env.NOVU_API_KEY || '84ec40b73ccba3e7205185bff4e00ffe';
         if (apiKey) {
             this.novu = new Novu(apiKey);
             this.logger.log('Novu initialized with API Key');
