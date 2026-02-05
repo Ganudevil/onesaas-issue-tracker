@@ -3,6 +3,7 @@
 import {
     NovuProvider,
     useNotifications,
+    useRemoveNotification,
     NotificationCenter
 } from '@novu/notification-center';
 import { useAuthStore } from '../store/useAuthStore';
@@ -110,6 +111,7 @@ function PlaceholderInbox() {
 function CustomInbox() {
     const [isOpen, setIsOpen] = useState(false);
     const { unseenCount } = useNotifications();
+    const { removeNotification } = useRemoveNotification();
     const popoverRef = useRef<HTMLDivElement>(null);
 
     // Close on click outside
@@ -236,9 +238,20 @@ function CustomInbox() {
                                     window.location.href = `/issues/${notification.payload.issueId}`;
                                 }
                             }}
-                            onActionClick={(templateIdentifier: string, type: any, notification: any) => {
-                                // Handle action button clicks
+                            onActionClick={async (templateIdentifier: string, type: any, notification: any) => {
                                 console.log('Action clicked:', { templateIdentifier, type, notification });
+
+                                // Check if this is a removal action
+                                if (type === 'remove' || type === 'delete' || templateIdentifier === 'remove') {
+                                    try {
+                                        await removeNotification(notification._id || notification.id);
+                                        console.log('Notification removed successfully');
+                                    } catch (error) {
+                                        console.error('Failed to remove notification:', error);
+                                    }
+                                    return;
+                                }
+
                                 // Navigate to issue on button click
                                 if (notification?.payload?.issueId) {
                                     window.location.href = `/issues/${notification.payload.issueId}`;
