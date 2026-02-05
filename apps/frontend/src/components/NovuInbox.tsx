@@ -10,8 +10,9 @@ import { useAuthStore } from '../store/useAuthStore';
 
 export default function NovuInbox() {
     const userId = useAuthStore((state) => state.user?.email);
+    const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID;
 
-    if (!userId) {
+    if (!userId || !appId) {
         return null;
     }
 
