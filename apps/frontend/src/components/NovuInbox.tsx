@@ -111,7 +111,7 @@ function PlaceholderInbox() {
 function CustomInbox() {
     const [isOpen, setIsOpen] = useState(false);
     const { unseenCount } = useNotifications();
-    const { removeNotification } = useRemoveNotification();
+    const removeNotificationMutation = useRemoveNotification();
     const popoverRef = useRef<HTMLDivElement>(null);
 
     // Close on click outside
@@ -172,7 +172,7 @@ function CustomInbox() {
                     flexDirection: 'column'
                 }}>
                     <InboxHeader />
-                    <CustomNotificationList removeNotification={removeNotification} />
+                    <CustomNotificationList removeNotificationMutation={removeNotificationMutation} />
                 </div>
             )}
         </div>
@@ -180,16 +180,33 @@ function CustomInbox() {
 }
 
 // Custom Notification List Component
-function CustomNotificationList({ removeNotification }: { removeNotification: (messageId: string) => Promise<void> }) {
-    const { notifications, markNotificationAsRead } = useNotifications();
+function CustomNotificationList({ removeNotificationMutation }: { removeNotificationMutation: any }) {
+    const { notifications, markNotificationAsRead, fetchMore } = useNotifications();
+    const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
 
     const handleRemove = async (messageId: string, e: React.MouseEvent) => {
         e.stopPropagation();
+
+        // Optimistic UI update - hide the notification immediately
+        setRemovingIds(prev => new Set(prev).add(messageId));
+
         try {
-            await removeNotification(messageId);
-            console.log('Notification removed:', messageId);
+            // Call the mutation with the correct object structure
+            await removeNotificationMutation.mutateAsync({ messageId });
+            console.log('Notification removed successfully:', messageId);
+
+            // Force refetch to update the list
+            setTimeout(() => {
+                fetchMore();
+            }, 100);
         } catch (error) {
             console.error('Error removing notification:', error);
+            // Remove from removing set if error occurs
+            setRemovingIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(messageId);
+                return newSet;
+            });
         }
     };
 
@@ -232,77 +249,79 @@ function CustomNotificationList({ removeNotification }: { removeNotification: (m
 
     return (
         <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-            {notifications.map((notification: any) => (
-                <div
-                    key={notification._id}
-                    onClick={() => handleClick(notification)}
-                    style={{
-                        padding: '12px 14px',
-                        borderBottom: '1px solid #f1f5f9',
-                        backgroundColor: notification.read ? '#ffffff' : '#f8fafc',
-                        borderLeft: notification.read ? 'none' : '3px solid #3b82f6',
-                        cursor: 'pointer',
-                        position: 'relative',
-                        transition: 'background-color 0.2s'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = notification.read ? '#ffffff' : '#f8fafc'}
-                >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                        <div style={{ flex: 1, paddingRight: '8px' }}>
-                            <div style={{
-                                fontSize: '13px',
-                                fontWeight: notification.read ? 400 : 600,
-                                color: '#1e293b',
-                                marginBottom: '4px'
-                            }}>
-                                {notification.content || 'Notification'}
+            {notifications
+                .filter((notification: any) => !removingIds.has(notification._id))
+                .map((notification: any) => (
+                    <div
+                        key={notification._id}
+                        onClick={() => handleClick(notification)}
+                        style={{
+                            padding: '12px 14px',
+                            borderBottom: '1px solid #f1f5f9',
+                            backgroundColor: notification.read ? '#ffffff' : '#f8fafc',
+                            borderLeft: notification.read ? 'none' : '3px solid #3b82f6',
+                            cursor: 'pointer',
+                            position: 'relative',
+                            transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = notification.read ? '#ffffff' : '#f8fafc'}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                            <div style={{ flex: 1, paddingRight: '8px' }}>
+                                <div style={{
+                                    fontSize: '13px',
+                                    fontWeight: notification.read ? 400 : 600,
+                                    color: '#1e293b',
+                                    marginBottom: '4px'
+                                }}>
+                                    {notification.content || 'Notification'}
+                                </div>
+                                <div style={{
+                                    fontSize: '11px',
+                                    color: '#94a3b8'
+                                }}>
+                                    {formatTime(notification.createdAt)}
+                                </div>
                             </div>
-                            <div style={{
-                                fontSize: '11px',
-                                color: '#94a3b8'
-                            }}>
-                                {formatTime(notification.createdAt)}
-                            </div>
+                            <button
+                                onClick={(e) => handleRemove(notification._id, e)}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    padding: '4px',
+                                    color: '#94a3b8',
+                                    fontSize: '18px',
+                                    lineHeight: 1,
+                                    flexShrink: 0,
+                                    fontWeight: 'bold'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.color = '#e53e3e'}
+                                onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
+                                title="Remove notification"
+                            >
+                                ×
+                            </button>
                         </div>
-                        <button
-                            onClick={(e) => handleRemove(notification._id, e)}
-                            style={{
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '4px',
-                                color: '#94a3b8',
-                                fontSize: '18px',
-                                lineHeight: 1,
-                                flexShrink: 0,
-                                fontWeight: 'bold'
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.color = '#e53e3e'}
-                            onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
-                            title="Remove notification"
-                        >
-                            ×
-                        </button>
+                        {notification?.cta?.action?.buttons?.length > 0 && (
+                            <button
+                                style={{
+                                    marginTop: '8px',
+                                    padding: '4px 12px',
+                                    backgroundColor: '#e53e3e',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    fontSize: '11px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                View Issue
+                            </button>
+                        )}
                     </div>
-                    {notification?.cta?.action?.buttons?.length > 0 && (
-                        <button
-                            style={{
-                                marginTop: '8px',
-                                padding: '4px 12px',
-                                backgroundColor: '#e53e3e',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                fontSize: '11px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            View Issue
-                        </button>
-                    )}
-                </div>
-            ))}
+                ))}
         </div>
     );
 }
