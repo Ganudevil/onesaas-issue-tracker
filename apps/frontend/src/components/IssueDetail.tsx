@@ -20,7 +20,9 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
     const [createdUser, setCreatedUser] = useState<User | undefined>(undefined);
     const [assignedUser, setAssignedUser] = useState<User | undefined>(undefined);
     const [loading, setLoading] = useState(true);
+
     const [tick, setTick] = useState(0);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -155,7 +157,8 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                                     <img
                                         src={issue.image}
                                         alt="Issue Attachment"
-                                        className="max-w-full rounded-lg border border-[var(--border-card)] shadow-sm max-h-96 object-contain bg-[var(--bg-header)]"
+                                        className="max-w-full rounded-lg border border-[var(--border-card)] shadow-sm max-h-96 object-contain bg-[var(--bg-header)] cursor-pointer hover:opacity-90 transition-opacity"
+                                        onClick={() => setIsPreviewOpen(true)}
                                     />
                                     {(role === UserRole.ADMIN || user?.id === issue.createdBy) && (
                                         <button
@@ -222,6 +225,30 @@ export const IssueDetail: React.FC<IssueDetailProps> = ({ id }) => {
                     </div>
                 </div>
             </div>
+            {/* Image Preview Modal */}
+            {isPreviewOpen && issue.image && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                    onClick={() => setIsPreviewOpen(false)}
+                >
+                    <div className="relative max-w-7xl max-h-screen w-full h-full flex items-center justify-center">
+                        <img
+                            src={issue.image}
+                            alt="Full size preview"
+                            className="max-h-full max-w-full object-contain rounded-md shadow-2xl"
+                        />
+                        <button
+                            className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsPreviewOpen(false);
+                            }}
+                        >
+                            <Trash2 className="h-6 w-6 rotate-45" /> {/* Using Trash2 as X icon for now, or just X if available */}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
