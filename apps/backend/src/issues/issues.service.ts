@@ -184,12 +184,17 @@ export class IssuesService {
 
       // Trigger Notification for Assignment
       if (updateDto.assignedTo) {
+        this.logger.log(`Assignment change detected: ${updateDto.assignedTo}. Triggering notification.`);
         const user = await this.getUser(updateDto.assignedTo, tenantId);
+        this.logger.log(`Resolved assigned user: ${JSON.stringify(user)}`);
+
         await this.novuService.triggerEvent('issue-assigned-rqdp', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
           url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
         });
+      } else {
+        this.logger.log(`No assignment change detected in updateDto.`);
       }
 
       // 3. Generic Update (Title, Description, Priority) - Only if not Status/Assign
