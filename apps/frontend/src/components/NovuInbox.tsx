@@ -3,6 +3,7 @@
 import {
     NovuProvider,
     useNotifications,
+    useRemoveNotification,
     NotificationCenter
 } from '@novu/notification-center';
 import { useAuthStore } from '../store/useAuthStore';
@@ -110,6 +111,7 @@ function PlaceholderInbox() {
 function CustomInbox() {
     const [isOpen, setIsOpen] = useState(false);
     const { unseenCount } = useNotifications();
+    const removeNotification = useRemoveNotification();
     const popoverRef = useRef<HTMLDivElement>(null);
 
     // Close on click outside
@@ -126,6 +128,18 @@ function CustomInbox() {
     }, []);
 
     const togglePopover = () => setIsOpen(!isOpen);
+
+    const handleDelete = (messageId: string) => {
+        const { removeNotification: removeFn } = removeNotification;
+        removeFn({ messageId }, {
+            onSuccess: () => {
+                console.log('Notification removed successfully:', messageId);
+            },
+            onError: (error: any) => {
+                console.error('Error removing notification:', error);
+            }
+        });
+    };
 
     return (
         <div style={{ position: 'relative' }} ref={popoverRef}>
@@ -226,6 +240,37 @@ function CustomInbox() {
                             }}
                             showUserPreferences={false}
                             header={() => <></>}
+                            renderCustomActions={(notification: any) => (
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(notification._id);
+                                        }}
+                                        style={{
+                                            background: 'transparent',
+                                            border: '1px solid #e5e7eb',
+                                            borderRadius: '4px',
+                                            padding: '4px 8px',
+                                            cursor: 'pointer',
+                                            fontSize: '11px',
+                                            color: '#6b7280',
+                                            transition: 'all 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.borderColor = '#ef4444';
+                                            e.currentTarget.style.color = '#ef4444';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.borderColor = '#e5e7eb';
+                                            e.currentTarget.style.color = '#6b7280';
+                                        }}
+                                        title="Remove notification"
+                                    >
+                                        × Remove
+                                    </button>
+                                </div>
+                            )}
                         />
                     </div>
                 </div>
