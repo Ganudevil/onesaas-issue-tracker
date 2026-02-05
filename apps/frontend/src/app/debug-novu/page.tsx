@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuthStore } from '../../store/useAuthStore';
-import { NovuProvider, useNotifications } from '@novu/notification-center';
+import { NovuProvider, PopoverNotificationCenter } from '@novu/notification-center';
 import { useState, useEffect } from 'react';
 
 // Fallback from NovuInbox
@@ -82,50 +82,27 @@ export default function DebugNovuPage() {
     );
 }
 
-function ConnectionTester() {
-    const { notifications, isLoading, isError, error } = useNotifications();
-    const [status, setStatus] = useState('Initializing...');
-
-    useEffect(() => {
-        if (isLoading) setStatus('Loading...');
-        else if (isError) setStatus('Error');
-        else setStatus('Connected');
-    }, [isLoading, isError]);
-
-    return (
-        <div className="space-y-4">
-            <div className="flex items-center gap-4">
-                <div className={`
-                    px-4 py-2 rounded-full font-bold
-                    ${isLoading ? 'bg-yellow-100 text-yellow-700' : ''}
-                    ${isError ? 'bg-red-100 text-red-700' : ''}
-                    ${!isLoading && !isError ? 'bg-green-100 text-green-700' : ''}
-                `}>
-                    Status: {status}
-                </div>
-            </div>
-
-            {isLoading && (
-                <div className="text-gray-500 animate-pulse">
-                    Connecting to Novu socket... (If this takes > 10s, connection is blocked or ID is invalid)
-                </div>
-            )}
-
-            {isError && (
-                <div className="bg-red-50 border border-red-200 p-4 rounded text-red-700">
-                    <p className="font-bold">Connection Failed!</p>
-                    <pre className="text-xs mt-2 overflow-auto">{JSON.stringify(error, null, 2)}</pre>
-                </div>
-            )}
-
-            {!isLoading && !isError && (
-                <div className="space-y-2">
-                    <div className="text-green-600 font-bold">✅ Novu is Connected!</div>
-                    <div className="text-sm text-gray-600">
-                        Fetched {notifications?.length || 0} notifications for this subscriber.
-                    </div>
-                </div>
-            )}
+return (
+    <div className="space-y-4">
+        <div className="text-sm text-gray-600 mb-4">
+            Note: To debug connection, check the browser console network tab for WebSocket connections to novu.co
         </div>
-    );
+
+        <div className="p-4 border rounded bg-gray-50 text-center">
+            <PopoverNotificationCenter colorScheme="light">
+                {({ unseenCount }) => (
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-bold cursor-pointer">
+                        <span>🔔 Check Notifications</span>
+                        {unseenCount > 0 && (
+                            <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                                {unseenCount}
+                            </span>
+                        )}
+                    </div>
+                )}
+            </PopoverNotificationCenter>
+            <p className="mt-2 text-xs text-gray-400">Click the button above to test the notification center content</p>
+        </div>
+    </div>
+);
 }
