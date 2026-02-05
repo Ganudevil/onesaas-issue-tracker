@@ -233,6 +233,15 @@ function CustomNotificationList({ removeNotificationMutation }: { removeNotifica
         return `${diffDays}d ago`;
     };
 
+    // Debug logging
+    console.log('CustomNotificationList render:', {
+        notifications,
+        hasNotifications: !!notifications,
+        notificationsLength: notifications?.length,
+        notificationsType: typeof notifications,
+        isArray: Array.isArray(notifications)
+    });
+
     if (!notifications || notifications.length === 0) {
         return (
             <div style={{
@@ -243,6 +252,9 @@ function CustomNotificationList({ removeNotificationMutation }: { removeNotifica
             }}>
                 <Bell className="h-12 w-12 mx-auto mb-3 text-gray-300" style={{ margin: '0 auto 12px' }} />
                 <p style={{ margin: 0 }}>No notifications</p>
+                <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#a0aec0' }}>
+                    Check console for debug info
+                </p>
             </div>
         );
     }
