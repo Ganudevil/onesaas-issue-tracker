@@ -88,7 +88,7 @@ async function main() {
                         content: [{ type: 'text', content: config.template.message.replace(/\n/g, '<br>') }], // basic text content
                         layoutId: null
                     },
-                    active: true,
+                    active: false, // PREVENT FAILURE: Disable email until provider is configured
                     filters: []
                 }
             ];
@@ -131,7 +131,7 @@ async function main() {
                                 subject: config.template.subject,
                                 content: [{ type: 'text', content: config.template.message.replace(/\n/g, '<br>') }],
                             },
-                            active: true,
+                            active: false, // PREVENT FAILURE: Disable email until provider is configured
                         },
                     ],
                     active: true,
