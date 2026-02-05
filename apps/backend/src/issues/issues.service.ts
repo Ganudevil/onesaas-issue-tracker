@@ -135,6 +135,17 @@ export class IssuesService {
         url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
       });
 
+      // Trigger Notification for Assignment (if assigned during creation)
+      if (createDto.assignedTo) {
+        this.logger.log(`Issue created with assignment: ${createDto.assignedTo}. Triggering notification.`);
+        const assignedUser = await this.getUser(createDto.assignedTo, tenantId);
+        await this.novuService.triggerEvent('issue-assigned-rqdp', tenantId, assignedUser, {
+          issueId: issue.id,
+          title: issue.title,
+          url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
+        });
+      }
+
       return issue;
     } catch (error) {
       console.error(error);
