@@ -110,13 +110,19 @@ function PlaceholderInbox() {
 // Custom styles for the notification center
 function CustomInbox() {
     const [isOpen, setIsOpen] = useState(false);
-    const { unseenCount, notifications, markNotificationAsRead } = useNotifications();
+    const notificationsData = useNotifications();
     const { removeNotification: removeFn } = useRemoveNotification();
     const popoverRef = useRef<HTMLDivElement>(null);
+
+    // Extract data from hook - useNotifications returns an object, not just the array
+    const unseenCount = notificationsData?.unseenCount || 0;
+    const notifications = notificationsData?.notifications || [];
+    const markNotificationAsRead = notificationsData?.markNotificationAsRead;
 
     // Debug logging - check what data we're getting
     useEffect(() => {
         console.log('🔔 NOVU DEBUG:');
+        console.log('  Full hook data:', notificationsData);
         console.log('  unseenCount:', unseenCount);
         console.log('  notifications:', notifications);
         console.log('  isArray:', Array.isArray(notifications));
@@ -124,7 +130,7 @@ function CustomInbox() {
         if (notifications && notifications.length > 0) {
             console.log('  first notification:', notifications[0]);
         }
-    }, [unseenCount, notifications]);
+    }, [notificationsData, unseenCount, notifications]);
 
     // Close on click outside
     useEffect(() => {
