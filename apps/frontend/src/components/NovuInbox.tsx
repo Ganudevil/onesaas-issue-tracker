@@ -240,34 +240,43 @@ function CustomInbox() {
                             }}
                             showUserPreferences={false}
                             header={() => <></>}
-                            renderCustomActions={(notification: any) => (
-                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                            listItem={(notification: any) => (
+                                <div style={{
+                                    position: 'relative',
+                                    padding: '12px 14px',
+                                    borderBottom: '1px solid #f1f5f9',
+                                    cursor: 'pointer'
+                                }}>
+                                    <div style={{ paddingRight: '30px' }}>
+                                        <div style={{ fontSize: '13px', fontWeight: notification.read ? 400 : 600 }}>
+                                            {notification.content || 'Notification'}
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>
+                                            {notification.createdAt}
+                                        </div>
+                                    </div>
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleDelete(notification._id);
                                         }}
                                         style={{
+                                            position: 'absolute',
+                                            top: '12px',
+                                            right: '12px',
                                             background: 'transparent',
-                                            border: '1px solid #e5e7eb',
-                                            borderRadius: '4px',
-                                            padding: '4px 8px',
+                                            border: 'none',
                                             cursor: 'pointer',
-                                            fontSize: '11px',
-                                            color: '#6b7280',
-                                            transition: 'all 0.2s'
+                                            fontSize: '18px',
+                                            color: '#94a3b8',
+                                            padding: '0',
+                                            lineHeight: 1
                                         }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.borderColor = '#ef4444';
-                                            e.currentTarget.style.color = '#ef4444';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.borderColor = '#e5e7eb';
-                                            e.currentTarget.style.color = '#6b7280';
-                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.color = '#ef4444'}
+                                        onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
                                         title="Remove notification"
                                     >
-                                        × Remove
+                                        ×
                                     </button>
                                 </div>
                             )}
