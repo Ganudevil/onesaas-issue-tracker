@@ -123,12 +123,24 @@ function CustomInbox() {
     useEffect(() => {
         console.log('🔔 NOVU DEBUG:');
         console.log('  Full hook data:', notificationsData);
+        console.log('  All hook keys:', Object.keys(notificationsData || {}));
         console.log('  unseenCount:', unseenCount);
         console.log('  notifications:', notifications);
         console.log('  isArray:', Array.isArray(notifications));
         console.log('  length:', notifications?.length);
+
+        // Log all properties to find what we're missing
+        if (notificationsData) {
+            console.log('  Hook properties:');
+            for (const key in notificationsData) {
+                console.log(`    ${key}:`, notificationsData[key]);
+            }
+        }
+
         if (notifications && notifications.length > 0) {
             console.log('  first notification:', notifications[0]);
+        } else {
+            console.log('  ⚠️ Notifications array is empty but unseenCount is', unseenCount);
         }
     }, [notificationsData, unseenCount, notifications]);
 
