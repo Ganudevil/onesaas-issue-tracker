@@ -3,7 +3,8 @@
 import {
     NovuProvider,
     useNotifications,
-    useRemoveNotification
+    useRemoveNotification,
+    NotificationCenter
 } from '@novu/notification-center';
 import { useAuthStore } from '../store/useAuthStore';
 import { useState, useRef, useEffect } from 'react';
@@ -109,8 +110,8 @@ function PlaceholderInbox() {
 // Custom styles for the notification center
 function CustomInbox() {
     const [isOpen, setIsOpen] = useState(false);
-    const { unseenCount } = useNotifications();
-    const removeNotification = useRemoveNotification();
+    const { unseenCount, notifications, markNotificationAsRead } = useNotifications();
+    const { removeNotification: removeFn } = useRemoveNotification();
     const popoverRef = useRef<HTMLDivElement>(null);
 
     // Close on click outside
@@ -128,8 +129,21 @@ function CustomInbox() {
 
     const togglePopover = () => setIsOpen(!isOpen);
 
-    const handleDelete = (messageId: string) => {
-        const { removeNotification: removeFn } = removeNotification;
+    const handleNotificationClick = async (notification: any) => {
+        // Mark as read
+        if (!notification.read) {
+            await markNotificationAsRead(notification._id);
+        }
+
+        // Navigate to issue if available
+        if (notification?.payload?.issueId) {
+            setIsOpen(false);
+            window.location.href = `/issues/${notification.payload.issueId}`;
+        }
+    };
+
+    const handleDelete = (messageId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
         removeFn({ messageId }, {
             onSuccess: () => {
                 console.log('Notification removed successfully:', messageId);
@@ -138,6 +152,20 @@ function CustomInbox() {
                 console.error('Error removing notification:', error);
             }
         });
+    };
+
+    const formatTime = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours}h ago`;
+        const diffDays = Math.floor(diffHours / 24);
+        return `${diffDays}d ago`;
     };
 
     return (
@@ -184,62 +212,88 @@ function CustomInbox() {
                 }}>
                     <InboxHeader />
 
-                    <div style={{ maxHeight: '500px', overflowY: 'auto', position: 'relative', fontSize: '13px' }}>
-                        <style>{`
-                            .nc-header { display: none !important; }
-                            
-                            div[class*="mantine-Text-root"], 
-                            .nc-notifications-list-item div,
-                            .nc-notifications-list-item span,
-                            .nc-notifications-list-item p {
-                                font-size: 13px !important;
-                                line-height: 1.4 !important;
-                                font-family: inherit !important;
-                            }
-
-                            div[class*="mantine-Text-root"][style*="bold"] {
-                                font-weight: 600 !important;
-                                font-size: 13px !important;
-                                margin-bottom: 2px !important;
-                            }
-
-                            button[class*="mantine-Button-root"] {
-                                height: 26px !important;
-                                min-height: 26px !important;
-                                padding: 0 12px !important;
-                                font-size: 11px !important;
-                                margin-top: 6px !important;
-                                width: auto !important;
-                                border-radius: 4px !important;
-                            }
-
-                            .nc-notifications-list-item {
-                                padding: 12px 14px !important;
-                                border-bottom: 1px solid #f1f5f9 !important;
-                            }
-
-                            span[class*="time-ago"], 
-                            div[class*="mantine-Text-root"][color="dimmed"] {
-                                font-size: 11px !important;
-                                color: #94a3b8 !important;
-                                margin-top: 4px !important;
-                            }
-                            
-                            .nc-notifications-list-item[data-test-id="notification-list-item-unseen"] {
-                                background-color: #f8fafc !important;
-                                border-left: 3px solid #3b82f6 !important;
-                            }
-                        `}</style>
-                        <NotificationCenter
-                            colorScheme="light"
-                            onNotificationClick={(notification: any) => {
-                                if (notification?.payload?.issueId) {
-                                    window.location.href = `/issues/${notification.payload.issueId}`;
-                                }
-                            }}
-                            showUserPreferences={false}
-                            header={() => <></>}
-                        />
+                    <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                        {!notifications || notifications.length === 0 ? (
+                            <div style={{
+                                padding: '32px 16px',
+                                textAlign: 'center',
+                                color: '#718096',
+                                fontSize: '13px'
+                            }}>
+                                <Bell className="h-12 w-12 mx-auto mb-3 text-gray-300" style={{ margin: '0 auto 12px' }} />
+                                <p style={{ margin: 0 }}>No notifications</p>
+                            </div>
+                        ) : (
+                            notifications.map((notification: any) => (
+                                <div
+                                    key={notification._id}
+                                    onClick={() => handleNotificationClick(notification)}
+                                    style={{
+                                        padding: '12px 14px',
+                                        borderBottom: '1px solid #f1f5f9',
+                                        backgroundColor: notification.read ? '#ffffff' : '#f8fafc',
+                                        borderLeft: notification.read ? 'none' : '3px solid #3b82f6',
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                        transition: 'background-color 0.15s'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#f8fafc';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = notification.read ? '#ffffff' : '#f8fafc';
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '8px' }}>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{
+                                                fontSize: '13px',
+                                                fontWeight: notification.read ? 400 : 600,
+                                                color: '#1e293b',
+                                                marginBottom: '4px',
+                                                wordBreak: 'break-word'
+                                            }}>
+                                                {notification.content || 'New notification'}
+                                            </div>
+                                            <div style={{
+                                                fontSize: '11px',
+                                                color: '#94a3b8'
+                                            }}>
+                                                {formatTime(notification.createdAt)}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={(e) => handleDelete(notification._id, e)}
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                fontSize: '20px',
+                                                color: '#94a3b8',
+                                                padding: '0',
+                                                lineHeight: 1,
+                                                flexShrink: 0,
+                                                fontWeight: 'bold',
+                                                width: '24px',
+                                                height: '24px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.color = '#ef4444';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.color = '#94a3b8';
+                                            }}
+                                            title="Remove notification"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             )}
