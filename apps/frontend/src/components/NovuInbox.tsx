@@ -3,7 +3,6 @@
 import {
     NovuProvider,
     useNotifications,
-    useRemoveNotification,
     NotificationCenter
 } from '@novu/notification-center';
 import { useAuthStore } from '../store/useAuthStore';
@@ -111,7 +110,6 @@ function PlaceholderInbox() {
 function CustomInbox() {
     const [isOpen, setIsOpen] = useState(false);
     const { unseenCount } = useNotifications();
-    const removeNotificationMutation = useRemoveNotification();
     const popoverRef = useRef<HTMLDivElement>(null);
 
     // Close on click outside
@@ -172,168 +170,66 @@ function CustomInbox() {
                     flexDirection: 'column'
                 }}>
                     <InboxHeader />
-                    <CustomNotificationList removeNotificationMutation={removeNotificationMutation} />
+
+                    <div style={{ maxHeight: '500px', overflowY: 'auto', position: 'relative', fontSize: '13px' }}>
+                        <style>{`
+                            .nc-header { display: none !important; }
+                            
+                            div[class*="mantine-Text-root"], 
+                            .nc-notifications-list-item div,
+                            .nc-notifications-list-item span,
+                            .nc-notifications-list-item p {
+                                font-size: 13px !important;
+                                line-height: 1.4 !important;
+                                font-family: inherit !important;
+                            }
+
+                            div[class*="mantine-Text-root"][style*="bold"] {
+                                font-weight: 600 !important;
+                                font-size: 13px !important;
+                                margin-bottom: 2px !important;
+                            }
+
+                            button[class*="mantine-Button-root"] {
+                                height: 26px !important;
+                                min-height: 26px !important;
+                                padding: 0 12px !important;
+                                font-size: 11px !important;
+                                margin-top: 6px !important;
+                                width: auto !important;
+                                border-radius: 4px !important;
+                            }
+
+                            .nc-notifications-list-item {
+                                padding: 12px 14px !important;
+                                border-bottom: 1px solid #f1f5f9 !important;
+                            }
+
+                            span[class*="time-ago"], 
+                            div[class*="mantine-Text-root"][color="dimmed"] {
+                                font-size: 11px !important;
+                                color: #94a3b8 !important;
+                                margin-top: 4px !important;
+                            }
+                            
+                            .nc-notifications-list-item[data-test-id="notification-list-item-unseen"] {
+                                background-color: #f8fafc !important;
+                                border-left: 3px solid #3b82f6 !important;
+                            }
+                        `}</style>
+                        <NotificationCenter
+                            colorScheme="light"
+                            onNotificationClick={(notification: any) => {
+                                if (notification?.payload?.issueId) {
+                                    window.location.href = `/issues/${notification.payload.issueId}`;
+                                }
+                            }}
+                            showUserPreferences={false}
+                            header={() => <></>}
+                        />
+                    </div>
                 </div>
             )}
-        </div>
-    );
-}
-
-// Custom Notification List Component
-function CustomNotificationList({ removeNotificationMutation }: { removeNotificationMutation: any }) {
-    const { notifications, markNotificationAsRead, fetchMore } = useNotifications();
-    const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
-
-    const handleRemove = async (messageId: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-
-        // Optimistic UI update - hide the notification immediately
-        setRemovingIds(prev => new Set(prev).add(messageId));
-
-        try {
-            // Call the mutation with the correct object structure
-            await removeNotificationMutation.mutateAsync({ messageId });
-            console.log('Notification removed successfully:', messageId);
-
-            // Force refetch to update the list
-            setTimeout(() => {
-                fetchMore();
-            }, 100);
-        } catch (error) {
-            console.error('Error removing notification:', error);
-            // Remove from removing set if error occurs
-            setRemovingIds(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(messageId);
-                return newSet;
-            });
-        }
-    };
-
-    const handleClick = async (notification: any) => {
-        if (!notification.read) {
-            await markNotificationAsRead(notification._id);
-        }
-        if (notification?.payload?.issueId) {
-            window.location.href = `/issues/${notification.payload.issueId}`;
-        }
-    };
-
-    const formatTime = (date: string) => {
-        const now = new Date();
-        const notifDate = new Date(date);
-        const diffMs = now.getTime() - notifDate.getTime();
-        const diffMins = Math.floor(diffMs / 60000);
-
-        if (diffMins < 1) return 'Just now';
-        if (diffMins < 60) return `${diffMins}m ago`;
-        const diffHours = Math.floor(diffMins / 60);
-        if (diffHours < 24) return `${diffHours}h ago`;
-        const diffDays = Math.floor(diffHours / 24);
-        return `${diffDays}d ago`;
-    };
-
-    // Debug logging
-    console.log('CustomNotificationList render:', {
-        notifications,
-        hasNotifications: !!notifications,
-        notificationsLength: notifications?.length,
-        notificationsType: typeof notifications,
-        isArray: Array.isArray(notifications)
-    });
-
-    if (!notifications || notifications.length === 0) {
-        return (
-            <div style={{
-                padding: '32px 16px',
-                textAlign: 'center',
-                color: '#718096',
-                fontSize: '13px'
-            }}>
-                <Bell className="h-12 w-12 mx-auto mb-3 text-gray-300" style={{ margin: '0 auto 12px' }} />
-                <p style={{ margin: 0 }}>No notifications</p>
-                <p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#a0aec0' }}>
-                    Check console for debug info
-                </p>
-            </div>
-        );
-    }
-
-    return (
-        <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-            {notifications
-                .filter((notification: any) => !removingIds.has(notification._id))
-                .map((notification: any) => (
-                    <div
-                        key={notification._id}
-                        onClick={() => handleClick(notification)}
-                        style={{
-                            padding: '12px 14px',
-                            borderBottom: '1px solid #f1f5f9',
-                            backgroundColor: notification.read ? '#ffffff' : '#f8fafc',
-                            borderLeft: notification.read ? 'none' : '3px solid #3b82f6',
-                            cursor: 'pointer',
-                            position: 'relative',
-                            transition: 'background-color 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = notification.read ? '#ffffff' : '#f8fafc'}
-                    >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                            <div style={{ flex: 1, paddingRight: '8px' }}>
-                                <div style={{
-                                    fontSize: '13px',
-                                    fontWeight: notification.read ? 400 : 600,
-                                    color: '#1e293b',
-                                    marginBottom: '4px'
-                                }}>
-                                    {notification.content || 'Notification'}
-                                </div>
-                                <div style={{
-                                    fontSize: '11px',
-                                    color: '#94a3b8'
-                                }}>
-                                    {formatTime(notification.createdAt)}
-                                </div>
-                            </div>
-                            <button
-                                onClick={(e) => handleRemove(notification._id, e)}
-                                style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    padding: '4px',
-                                    color: '#94a3b8',
-                                    fontSize: '18px',
-                                    lineHeight: 1,
-                                    flexShrink: 0,
-                                    fontWeight: 'bold'
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.color = '#e53e3e'}
-                                onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
-                                title="Remove notification"
-                            >
-                                ×
-                            </button>
-                        </div>
-                        {notification?.cta?.action?.buttons?.length > 0 && (
-                            <button
-                                style={{
-                                    marginTop: '8px',
-                                    padding: '4px 12px',
-                                    backgroundColor: '#e53e3e',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    fontSize: '11px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                View Issue
-                            </button>
-                        )}
-                    </div>
-                ))}
         </div>
     );
 }
