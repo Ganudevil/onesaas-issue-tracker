@@ -2,9 +2,7 @@
 
 import {
     NovuProvider,
-    useNotifications,
-    useRemoveNotification,
-    NotificationCenter
+    PopoverNotificationCenter
 } from '@novu/notification-center';
 import { useAuthStore } from '../store/useAuthStore';
 import { useState, useRef, useEffect } from 'react';
