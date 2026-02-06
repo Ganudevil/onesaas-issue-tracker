@@ -131,7 +131,8 @@ export class IssuesService {
       await this.novuService.triggerEvent('issue-created', tenantId, user, {
         issueId: issue.id,
         title: issue.title,
-        priority: issue.priority,
+        description: issue.description ? issue.description.substring(0, 100) + '...' : '',
+        priority: issue.priority || 'medium', // Ensure it's a string
         url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
       });
 
@@ -142,6 +143,7 @@ export class IssuesService {
         await this.novuService.triggerEvent('issue-assigned', tenantId, assignedUser, {
           issueId: issue.id,
           title: issue.title,
+          description: issue.description ? issue.description.substring(0, 100) + '...' : '',
           url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
         });
       }
