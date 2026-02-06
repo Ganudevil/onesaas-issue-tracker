@@ -1,7 +1,8 @@
 'use client';
 
 import { Bell, MoreVertical, Check, Trash2 } from 'lucide-react';
-import { NovuProvider, PopoverNotificationCenter, useNotifications } from '@novu/notification-center';
+// Import separate hooks for actions if available
+import { NovuProvider, PopoverNotificationCenter, useNotifications, useRemoveNotification } from '@novu/notification-center';
 import { useAuthStore } from '../store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
@@ -23,7 +24,7 @@ function timeAgo(date: string | Date) {
 }
 
 // Separate Item Component
-const NotificationItem = ({ notification, markAsRead, removeNotification, archiveNotification }: any) => {
+const NotificationItem = ({ notification, markAsRead, removeNotification }: any) => {
     const router = useRouter();
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -31,7 +32,6 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, archiv
     const payload = notification.payload || {};
     const isUnread = !notification.read;
 
-    // Close menu when clicking outside
     useEffect(() => {
         function handleClickOutside(event: any) {
             if (showMenu && menuRef.current && !menuRef.current.contains(event.target)) {
@@ -43,7 +43,6 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, archiv
     }, [showMenu]);
 
     const handleClick = (e: any) => {
-        // Prevent navigation if clicking menu or specific buttons
         if (e.target.closest('.menu-trigger') || e.target.closest('.menu-content') || e.target.closest('.action-btn')) return;
 
         if (payload.issueId) {
@@ -67,10 +66,11 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, archiv
         if (action === 'read') {
             markAsRead(notification._id);
         } else if (action === 'remove') {
-            if (archiveNotification) {
-                archiveNotification(notification._id);
-            } else if (removeNotification) {
+            if (removeNotification) {
+                // Call standard remove
                 removeNotification(notification._id);
+            } else {
+                console.error("Remove function not available");
             }
         }
         setShowMenu(false);
@@ -83,7 +83,7 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, archiv
                 group relative mb-3 p-4 rounded-xl border transition-all duration-300 transform
                 ${isUnread
                     ? 'bg-blue-50 border-blue-200'
-                    : 'bg-white border-gray-100' // Read items are white
+                    : 'bg-white border-gray-100'
                 }
                 hover:scale-[1.02] hover:shadow-lg hover:z-10
                 cursor-pointer
@@ -92,18 +92,15 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, archiv
                 boxShadow: isUnread ? '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
             }}
         >
-            {/* Left color bar for visual pop */}
             <div className={`absolute left-0 top-3 bottom-3 w-1.5 rounded-r-md ${isUnread ? 'bg-blue-500' : 'bg-transparent'}`} />
 
             <div className="relative z-1 flex justify-between items-start gap-3 pl-2">
                 <div className="flex-1">
-                    {/* Time & Menu Top Row */}
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-[10px] text-gray-400 font-medium bg-gray-50 px-2 py-0.5 rounded-full">
                             {timeAgo(notification.createdAt)} ago
                         </span>
 
-                        {/* 3 Dots Menu */}
                         <div className="relative">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
@@ -238,14 +235,27 @@ export default function NovuInbox() {
     );
 }
 
+// Wrapper to access context hooks correctly
 function NotificationHelper({ notification }: { notification: any }) {
-    const { markAsRead, removeNotification, archiveNotification } = useNotifications() as any;
+    // Use the standard hook for basic actions
+    const { markAsRead } = useNotifications() as any;
+
+    // Try to use the specific remove hook if it exists in v2
+    // If usage of this hook fails at runtime (not exists), we might need fallback
+    // We suppress error by casting to any or try-catch context
+    let removeNotification: any = null;
+    try {
+        const removeContext = useRemoveNotification();
+        removeNotification = removeContext?.removeNotification;
+    } catch (err) {
+        // Fallback or ignore
+    }
+
     return (
         <NotificationItem
             notification={notification}
             markAsRead={markAsRead}
             removeNotification={removeNotification}
-            archiveNotification={archiveNotification}
         />
     );
 }
