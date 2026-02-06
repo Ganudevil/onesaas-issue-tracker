@@ -10,52 +10,46 @@ import { MockAuthProvider } from '@/auth/MockAuthProvider';
 
 const queryClient = new QueryClient();
 
-// Detect if we should use Mock Mode
-// Detect if we should use Mock Mode
-// Logic: Default to Mock if:
-// 1. Explicitly requested via NEXT_PUBLIC_USE_MOCK='true'
-// 2. Keycloak URL is missing, empty, or 'undefined'
-// 3. Keycloak URL points to localhost (which won't work on Vercel)
+// Improved Mock Mode Detection with explicit configuration support
+// Supports NEXT_PUBLIC_AUTH_MODE='mock' for explicit mode setting
+const authMode = process.env.NEXT_PUBLIC_AUTH_MODE; // 'mock' or 'keycloak'
 const keycloakUrl = process.env.NEXT_PUBLIC_KEYCLOAK_URL;
 const useMockEnv = process.env.NEXT_PUBLIC_USE_MOCK;
 
+// Detect if URL is pointing to localhost or unreachable endpoints
+const isLocalKeycloak = keycloakUrl?.includes('localhost') || keycloakUrl?.includes('127.0.0.1');
+
+// Auto-detect mock mode if:
+// 1. Explicitly requested via NEXT_PUBLIC_AUTH_MODE='mock' or NEXT_PUBLIC_USE_MOCK='true'
+// 2. Keycloak URL is missing, empty, or undefined
+// 3. Keycloak URL points to localhost (won't work on Vercel)
 const shouldUseMock =
+    authMode === 'mock' ||
     useMockEnv === 'true' ||
     !keycloakUrl ||
     keycloakUrl === '' ||
     keycloakUrl === 'undefined' ||
     keycloakUrl === 'null' ||
-    keycloakUrl === 'null' ||
     keycloakUrl === 'mock' ||
-    keycloakUrl === 'mock';
+    isLocalKeycloak;
 
 // Check for manual override (Self-Healing)
 const manualMockOverride = typeof window !== 'undefined' ? localStorage.getItem('onesaas_force_mock') === 'true' : false;
 
-// FAILSAFE: If we are on a Vercel deployment (determined by hostname)
-// and NO Keycloak URL is explicitly provided, we MUST force Mock Mode.
-// This prevents the "localhost:8080" crash on the deployed site.
-if (typeof window !== 'undefined' && !shouldUseMock) {
-    const isVercel = window.location.hostname.includes('vercel.app');
-    if (isVercel && !useMockEnv && !keycloakUrl) {
-        console.warn('[Providers] Detected Vercel deployment with missing config. Forcing Mock Mode.');
-        // We can't re-assign const, but we can rely on this check inside the component or force a reload?
-        // Actually, we need to move this logic INSIDE the component or make `shouldUseMock` a let/var? 
-        // Better: include this condition in the initial definition.
-    }
-}
-
+// FAILSAFE: If we are on a Vercel deployment and no explicit mode is set,
+// AND Keycloak URL is not properly configured, force Mock Mode
 const isVercelRuntime = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
 const effectiveShouldUseMock = shouldUseMock || manualMockOverride || (isVercelRuntime && !keycloakUrl);
 
 if (typeof window !== 'undefined') {
     console.log('[Providers] Auth Config Check:', {
+        authMode: authMode || '(not set)',
         shouldUseMock,
         manualMockOverride,
         effectiveShouldUseMock,
         isVercelRuntime,
         keycloakUrl: keycloakUrl || '(missing)',
-        useMockEnv: useMockEnv || '(missing)',
+        useMockEnv: useMockEnv || '(not set)',
         reason: effectiveShouldUseMock ? 'Using Mock Mode' : 'Using Real Keycloak'
     });
 }
