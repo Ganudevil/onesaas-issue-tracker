@@ -13,8 +13,9 @@ export default function NovuInbox() {
     const APP_ID = 'Wxa7z9RHue8E';
     const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID || APP_ID;
 
-    // Try multiple fields for subscriber ID
-    const subscriberId = user?.email || user?.id || null;
+    // Try multiple fields for subscriber ID - MUST match backend (uses UUID)
+    // ⚠️ Backend syncs user.id (UUID), so we MUST prioritize id over email
+    const subscriberId = user?.id || user?.email || null;
 
     // Extensive debug logging
     console.group('[NovuInbox] Component Render');
@@ -53,15 +54,16 @@ export default function NovuInbox() {
             >
                 <PopoverNotificationCenter
                     colorScheme="light"
+                    showUserPreferences={true}
                 >
                     {({ unseenCount }) => (
                         <div className="relative cursor-pointer">
                             <Bell className="h-5 w-5 text-slate-300 hover:text-cyan-400 transition-colors" />
-                            {unseenCount > 0 && (
+                            {unseenCount && unseenCount > 0 ? (
                                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                                     {unseenCount > 99 ? '99+' : unseenCount}
                                 </span>
-                            )}
+                            ) : null}
                         </div>
                     )}
                 </PopoverNotificationCenter>
