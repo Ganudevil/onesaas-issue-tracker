@@ -5,7 +5,8 @@ import { NovuProvider, PopoverNotificationCenter, useNotifications } from '@novu
 import { useAuthStore } from '../store/useAuthStore';
 
 function CustomFooter() {
-    const { markAllAsRead, notifications } = useNotifications();
+    // Cast to any to bypass TS error for markAllAsRead
+    const { markAllAsRead, notifications } = useNotifications() as any;
 
     // Novu doesn't expose "deleteAll" easily in the public hook without iterating
     // But we can offer "Mark All Read" as a secondary explicit action if the header is confusing
