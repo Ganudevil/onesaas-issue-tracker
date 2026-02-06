@@ -164,8 +164,8 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
 
                         {payload.priority && (
                             <span className={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wide ${(payload.priority || '').toLowerCase() === 'high'
-                                    ? 'bg-red-50 text-red-600 border border-red-100'
-                                    : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                ? 'bg-red-50 text-red-600 border border-red-100'
+                                : 'bg-blue-50 text-blue-600 border border-blue-100'
                                 }`}>
                                 {payload.priority}
                             </span>
@@ -227,6 +227,7 @@ export default function NovuInbox() {
 
     return (
         <NovuProvider subscriberId={subscriberId} applicationIdentifier={appId}>
+            <DebugLogger />
             <PopoverNotificationCenter
                 colorScheme="light"
                 showUserPreferences={true}
