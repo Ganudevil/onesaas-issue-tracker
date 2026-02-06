@@ -5,8 +5,24 @@ import { NovuProvider, PopoverNotificationCenter, useNotifications } from '@novu
 import { useAuthStore } from '../store/useAuthStore';
 import { useRouter } from 'next/navigation';
 
+// Helper for relative time (e.g. "5 minutes ago")
+function timeAgo(date: string | Date) {
+    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + " years ago";
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + " months ago";
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + " days ago";
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + " hours ago";
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + " minutes ago";
+    return Math.floor(seconds) + " seconds ago";
+}
+
 function CustomHeader() {
-    // Cast to any to bypass TS error for markAllAsRead if type definition is outdated
+    // Cast to any to bypass TS error
     const { markAllAsRead } = useNotifications() as any;
 
     const handleClearAll = () => {
@@ -14,18 +30,18 @@ function CustomHeader() {
     };
 
     return (
-        <div className="flex items-center justify-between p-4 border-b bg-white">
-            <h2 className="font-bold text-lg text-gray-800">Notifications</h2>
-            <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+            <h2 className="font-bold text-lg text-gray-900">Notifications</h2>
+            <div className="flex items-center gap-4">
                 <button
                     onClick={() => markAllAsRead()}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                    className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
                 >
-                    Mark all as read
+                    Mark all read
                 </button>
                 <button
                     onClick={handleClearAll}
-                    className="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-colors"
+                    className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
                 >
                     Clear all
                 </button>
@@ -64,7 +80,6 @@ export default function NovuInbox() {
                 header={() => <CustomHeader />}
                 listItem={(notification) => {
                     const payload = notification.payload as any;
-                    // Check if unread (Novu typically uses 'seen' or 'read' - checking !read)
                     const isUnread = !notification.read;
 
                     const handleNotificationClick = () => {
@@ -79,33 +94,38 @@ export default function NovuInbox() {
                     return (
                         <div
                             onClick={handleNotificationClick}
-                            className={`flex flex-col gap-1 p-4 border-b border-gray-100 last:border-0 cursor-pointer transition-colors relative
-                                ${isUnread ? 'bg-blue-50/50 hover:bg-blue-50' : 'bg-white hover:bg-gray-50'}
+                            className={`flex flex-col gap-1 p-4 border-b border-gray-200 last:border-0 cursor-pointer transition-colors relative
+                                ${isUnread ? 'bg-white' : 'bg-gray-50/50'} 
+                                hover:bg-gray-50
                             `}
                         >
-                            {/* Unread Indicator Dot */}
+                            {/* Unread Indicator: Blue vertical bar on left + dot */}
                             {isUnread && (
-                                <span className="absolute top-4 right-4 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white"></span>
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
                             )}
 
-                            <div className="flex justify-between items-start pr-4">
+                            <div className="flex justify-between items-start">
                                 <span className={`text-sm text-gray-900 ${isUnread ? 'font-bold' : 'font-semibold'}`}>
                                     {payload.title || 'Notification'}
                                 </span>
-                                <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap ml-2">
-                                    {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
                             </div>
-                            <p className={`text-xs line-clamp-2 leading-relaxed ${isUnread ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>
+
+                            <p className="text-xs text-gray-600 line-clamp-2 mt-0.5">
                                 {payload.description || notification.content || 'No details'}
                             </p>
-                            {payload.priority && (
-                                <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded w-fit mt-1 ${(payload.priority || '').toLowerCase() === 'high' ? 'bg-red-50 text-red-600' :
-                                    'bg-blue-50 text-blue-600'
-                                    }`}>
-                                    {payload.priority}
+
+                            <div className="flex items-center gap-2 mt-2">
+                                <span className="text-[10px] text-gray-400 font-medium">
+                                    {timeAgo(notification.createdAt)}
                                 </span>
-                            )}
+                                {payload.priority && (
+                                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0 rounded ${(payload.priority || '').toLowerCase() === 'high' ? 'bg-red-100 text-red-600' :
+                                        'bg-blue-100 text-blue-600'
+                                        }`}>
+                                        {payload.priority}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     );
                 }}
