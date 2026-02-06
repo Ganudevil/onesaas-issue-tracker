@@ -22,11 +22,26 @@ function timeAgo(date: string | Date) {
 }
 
 function CustomHeader() {
-    // Cast to any to bypass TS error
-    const { markAllAsRead } = useNotifications() as any;
+    // Robust Clear All Implementation: Get notifications and mark unread ones properly
+    const { markAsRead, notifications } = useNotifications() as any;
 
     const handleClearAll = () => {
-        markAllAsRead();
+        if (!notifications) return;
+        // Filter unread and mark them
+        // Note: notifications might be paginated, this handles loaded ones.
+        // For simpler UX, we try to mark all visible ones.
+        const unreadIds = notifications.filter((n: any) => !n.read).map((n: any) => n._id);
+        if (unreadIds.length > 0) {
+            markAsRead(unreadIds);
+        }
+    };
+
+    // Also "Mark all read" link should use the same robust logic or the global function if reliable
+    const handleMarkAllRead = () => {
+        const unreadIds = notifications?.filter((n: any) => !n.read).map((n: any) => n._id) || [];
+        if (unreadIds.length > 0) {
+            markAsRead(unreadIds);
+        }
     };
 
     return (
@@ -34,7 +49,7 @@ function CustomHeader() {
             <h2 className="font-bold text-lg text-gray-900">Notifications</h2>
             <div className="flex items-center gap-4">
                 <button
-                    onClick={() => markAllAsRead()}
+                    onClick={handleMarkAllRead}
                     className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
                 >
                     Mark all read
@@ -80,6 +95,7 @@ export default function NovuInbox() {
                 header={() => <CustomHeader />}
                 listItem={(notification) => {
                     const payload = notification.payload as any;
+                    // Check if unread (Novu uses 'read' boolean)
                     const isUnread = !notification.read;
 
                     const handleNotificationClick = () => {
@@ -95,13 +111,13 @@ export default function NovuInbox() {
                         <div
                             onClick={handleNotificationClick}
                             className={`flex flex-col gap-1 p-4 border-b border-gray-200 last:border-0 cursor-pointer transition-colors relative
-                                ${isUnread ? 'bg-white' : 'bg-gray-50/50'} 
+                                ${isUnread ? 'bg-blue-50/60' : 'bg-white'} 
                                 hover:bg-gray-50
                             `}
                         >
                             {/* Unread Indicator: Blue vertical bar on left + dot */}
                             {isUnread && (
-                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500"></div>
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>
                             )}
 
                             <div className="flex justify-between items-start">
@@ -115,7 +131,7 @@ export default function NovuInbox() {
                             </p>
 
                             <div className="flex items-center gap-2 mt-2">
-                                <span className="text-[10px] text-gray-400 font-medium">
+                                <span className="text-[10px] text-gray-500 font-medium">
                                     {timeAgo(notification.createdAt)}
                                 </span>
                                 {payload.priority && (
