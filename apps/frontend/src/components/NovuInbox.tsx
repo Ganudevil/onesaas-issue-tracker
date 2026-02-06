@@ -23,7 +23,7 @@ function timeAgo(date: string | Date) {
 }
 
 // Separate Item Component
-const NotificationItem = ({ notification, markAsRead, removeNotification }: any) => {
+const NotificationItem = ({ notification, markAsRead, removeNotification, archiveNotification }: any) => {
     const router = useRouter();
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -58,7 +58,15 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
         if (action === 'read') {
             markAsRead(notification._id);
         } else if (action === 'remove') {
-            if (removeNotification) removeNotification(notification._id);
+            // Prioritize archiveNotification (Standard Inbox "Remove" behavior means Archive)
+            // Fallback to removeNotification
+            if (archiveNotification) {
+                archiveNotification(notification._id);
+            } else if (removeNotification) {
+                removeNotification(notification._id);
+            } else {
+                console.error("NovuInbox: No archive/remove method available", { notificationId: notification._id });
+            }
         }
         setShowMenu(false);
     };
@@ -154,13 +162,6 @@ function CustomHeader() {
     };
 
     const handleClearAll = () => {
-        // "Clear All" -> For now we treat this same as Mark All Read as requested previously, OR if we had archive we'd use it.
-        // The user wants TWO buttons. One "Mark all read", One "Clear all".
-        // Let's make "Clear All" trigger the mark-all too if delete isn't available, or just log.
-        // Actually, Novu doesn't have "Delete All" exposed easily in the hook without iteration.
-        // We will make "Clear All" mimic "Mark All Read" logic for now if remove isn't an option, 
-        // to at least visually clear the unread state which is what users often mean.
-        // BUT visually we need the button.
         handleMarkAllRead();
     };
 
@@ -221,13 +222,22 @@ export default function NovuInbox() {
     );
 }
 
+// Wrapper to access context hook
 function NotificationHelper({ notification }: { notification: any }) {
-    const { markAsRead, removeNotification } = useNotifications() as any;
+    // Destructure archiveNotification AND removeNotification
+    const { markAsRead, removeNotification, archiveNotification } = useNotifications() as any;
+
+    // Debug log just once in development to check methods
+    useEffect(() => {
+        // console.log("Novu Methods Available:", { hasRemove: !!removeNotification, hasArchive: !!archiveNotification });
+    }, []);
+
     return (
         <NotificationItem
             notification={notification}
             markAsRead={markAsRead}
             removeNotification={removeNotification}
+            archiveNotification={archiveNotification}
         />
     );
 }
