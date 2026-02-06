@@ -128,7 +128,7 @@ export class IssuesService {
         this.logger.log(`Using fallback user context for Novu: ${JSON.stringify(user)}`);
       }
 
-      await this.novuService.triggerEvent('issue-created-5q2w', tenantId, user, {
+      await this.novuService.triggerEvent('issue-created', tenantId, user, {
         issueId: issue.id,
         title: issue.title,
         priority: issue.priority,
@@ -139,7 +139,7 @@ export class IssuesService {
       if (createDto.assignedTo && createDto.assignedTo !== createDto.createdBy) {
         this.logger.log(`Issue created with assignment to different user: ${createDto.assignedTo}. Triggering notification.`);
         const assignedUser = await this.getUser(createDto.assignedTo, tenantId);
-        await this.novuService.triggerEvent('issue-assigned-rqdp', tenantId, assignedUser, {
+        await this.novuService.triggerEvent('issue-assigned', tenantId, assignedUser, {
           issueId: issue.id,
           title: issue.title,
           url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
@@ -185,7 +185,7 @@ export class IssuesService {
       if (updateDto.status) {
         const targetUserId = updatedIssue.assignedTo || updatedIssue.createdBy;
         const user = await this.getUser(targetUserId, tenantId);
-        await this.novuService.triggerEvent('issue-status-changed-i6e1', tenantId, user, {
+        await this.novuService.triggerEvent('issue-status-changed', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
           status: updatedIssue.status,
@@ -199,7 +199,7 @@ export class IssuesService {
         const user = await this.getUser(updateDto.assignedTo, tenantId);
         this.logger.log(`Resolved assigned user: ${JSON.stringify(user)}`);
 
-        await this.novuService.triggerEvent('issue-assigned-rqdp', tenantId, user, {
+        await this.novuService.triggerEvent('issue-assigned', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
           url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
@@ -227,7 +227,7 @@ export class IssuesService {
             changeDescription = 'Priority updated';
           }
 
-          await this.novuService.triggerEvent('issue-updated-q1m2', tenantId, user, {
+          await this.novuService.triggerEvent('issue-updated', tenantId, user, {
             issueId: updatedIssue.id,
             title: updatedIssue.title,
             changeType: changeDescription,
@@ -300,7 +300,7 @@ export class IssuesService {
       const targetUserId = issue.assignedTo || issue.createdBy;
       const user = await this.getUser(targetUserId, tenantId);
 
-      await this.novuService.triggerEvent('comment-added-44gh', tenantId, user, {
+      await this.novuService.triggerEvent('comment-added', tenantId, user, {
         issueId: issue.id,
         issueTitle: issue.title,
         comment: text,
