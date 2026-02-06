@@ -43,7 +43,8 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, archiv
     }, [showMenu]);
 
     const handleClick = (e: any) => {
-        if (e.target.closest('.menu-trigger') || e.target.closest('.menu-content')) return;
+        // Prevent navigation if clicking menu or specific buttons
+        if (e.target.closest('.menu-trigger') || e.target.closest('.menu-content') || e.target.closest('.action-btn')) return;
 
         if (payload.issueId) {
             router.push(`/issues/${payload.issueId}`);
@@ -53,19 +54,23 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, archiv
         }
     };
 
+    const handleViewIssue = (e: any) => {
+        e.stopPropagation();
+        if (payload.issueId) {
+            router.push(`/issues/${payload.issueId}`);
+            if (isUnread) markAsRead(notification._id);
+        }
+    };
+
     const handleMenuAction = (action: 'read' | 'remove', e: any) => {
         e.stopPropagation();
         if (action === 'read') {
             markAsRead(notification._id);
         } else if (action === 'remove') {
-            // Prioritize archiveNotification (Standard Inbox "Remove" behavior means Archive)
-            // Fallback to removeNotification
             if (archiveNotification) {
                 archiveNotification(notification._id);
             } else if (removeNotification) {
                 removeNotification(notification._id);
-            } else {
-                console.error("NovuInbox: No archive/remove method available", { notificationId: notification._id });
             }
         }
         setShowMenu(false);
@@ -87,62 +92,73 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, archiv
                 boxShadow: isUnread ? '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
             }}
         >
-            <div className="relative z-1 flex justify-between items-start gap-3">
+            {/* Left color bar for visual pop */}
+            <div className={`absolute left-0 top-3 bottom-3 w-1.5 rounded-r-md ${isUnread ? 'bg-blue-500' : 'bg-transparent'}`} />
+
+            <div className="relative z-1 flex justify-between items-start gap-3 pl-2">
                 <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        {isUnread && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />}
-                        <h4 className={`text-sm ${isUnread ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}>
-                            {payload.title || 'Notification'}
-                        </h4>
-                        <span className="text-[10px] text-gray-400 font-medium ml-auto">
-                            {timeAgo(notification.createdAt)}
+                    {/* Time & Menu Top Row */}
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] text-gray-400 font-medium bg-gray-50 px-2 py-0.5 rounded-full">
+                            {timeAgo(notification.createdAt)} ago
                         </span>
+
+                        {/* 3 Dots Menu */}
+                        <div className="relative">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+                                className="menu-trigger p-1 rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <MoreVertical className="w-4 h-4" />
+                            </button>
+
+                            {showMenu && (
+                                <div
+                                    ref={menuRef}
+                                    className="menu-content absolute right-0 top-6 w-36 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 overflow-hidden"
+                                >
+                                    <button
+                                        onClick={(e) => handleMenuAction('read', e)}
+                                        className="w-full text-left px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                        <Check className="w-3 h-3 text-green-500" /> Mark read
+                                    </button>
+                                    <button
+                                        onClick={(e) => handleMenuAction('remove', e)}
+                                        className="w-full text-left px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                    >
+                                        <Trash2 className="w-3 h-3" /> Remove
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-2">
+                    <h4 className={`text-sm mb-1 ${isUnread ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}>
+                        {payload.title || 'Notification'}
+                    </h4>
+
+                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-3">
                         {payload.description || notification.content || 'No details'}
                     </p>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={handleViewIssue}
+                            className="action-btn px-4 py-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded shadow-md hover:shadow-lg hover:from-red-600 hover:to-pink-600 transition-all transform hover:-translate-y-0.5"
+                        >
+                            View Issue
+                        </button>
+
                         {payload.priority && (
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide ${(payload.priority || '').toLowerCase() === 'high'
-                                    ? 'bg-red-100 text-red-600'
-                                    : 'bg-blue-100 text-blue-600'
+                            <span className={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wide ${(payload.priority || '').toLowerCase() === 'high'
+                                    ? 'bg-red-50 text-red-600 border border-red-100'
+                                    : 'bg-blue-50 text-blue-600 border border-blue-100'
                                 }`}>
                                 {payload.priority}
                             </span>
                         )}
                     </div>
-                </div>
-
-                {/* 3 Dots Menu */}
-                <div className="relative">
-                    <button
-                        onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
-                        className="menu-trigger p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                        <MoreVertical className="w-4 h-4" />
-                    </button>
-
-                    {showMenu && (
-                        <div
-                            ref={menuRef}
-                            className="menu-content absolute right-0 top-6 w-32 bg-white rounded-lg shadow-xl border border-gray-100 py-1 z-50 overflow-hidden"
-                        >
-                            <button
-                                onClick={(e) => handleMenuAction('read', e)}
-                                className="w-full text-left px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                            >
-                                <Check className="w-3 h-3" /> Mark read
-                            </button>
-                            <button
-                                onClick={(e) => handleMenuAction('remove', e)}
-                                className="w-full text-left px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
-                            >
-                                <Trash2 className="w-3 h-3" /> Remove
-                            </button>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>
@@ -171,7 +187,7 @@ function CustomHeader() {
             <div className="flex gap-4">
                 <button
                     onClick={handleMarkAllRead}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-700"
+                    className="text-xs font-bold text-blue-600 hover:text-blue-700"
                 >
                     Mark all read
                 </button>
@@ -222,16 +238,8 @@ export default function NovuInbox() {
     );
 }
 
-// Wrapper to access context hook
 function NotificationHelper({ notification }: { notification: any }) {
-    // Destructure archiveNotification AND removeNotification
     const { markAsRead, removeNotification, archiveNotification } = useNotifications() as any;
-
-    // Debug log just once in development to check methods
-    useEffect(() => {
-        // console.log("Novu Methods Available:", { hasRemove: !!removeNotification, hasArchive: !!archiveNotification });
-    }, []);
-
     return (
         <NotificationItem
             notification={notification}
