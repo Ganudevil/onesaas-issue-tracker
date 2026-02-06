@@ -4,31 +4,30 @@ import { Bell, Trash2 } from 'lucide-react';
 import { NovuProvider, PopoverNotificationCenter, useNotifications } from '@novu/notification-center';
 import { useAuthStore } from '../store/useAuthStore';
 
-function CustomFooter() {
-    // Cast to any to bypass TS error for markAllAsRead
-    const { markAllAsRead, notifications } = useNotifications() as any;
-
-    // Novu doesn't expose "deleteAll" easily in the public hook without iterating
-    // But we can offer "Mark All Read" as a secondary explicit action if the header is confusing
-    // REQUIRED: User asked for "Clear All". 
-    // Since "Archive All" isn't standard, we will map this to "Mark All as Read" for now 
-    // or we can simulate it if we had access to the api. 
-    // Let's make it a "Mark all read" button that looks like "Clear" for UX, 
-    // as "Clear" often just means "Clear badge/unread status" in users' minds.
+function CustomHeader() {
+    const { markAllAsRead } = useNotifications() as any;
 
     const handleClearAll = () => {
         markAllAsRead();
     };
 
     return (
-        <div className="p-3 border-t bg-gray-50 flex justify-end">
-            <button
-                onClick={handleClearAll}
-                className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-red-600 transition-colors"
-            >
-                <Trash2 className="h-3.5 w-3.5" />
-                Clear all (Mark read)
-            </button>
+        <div className="flex items-center justify-between p-4 border-b bg-white">
+            <h2 className="font-bold text-lg text-gray-800">Notifications</h2>
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={() => markAllAsRead()}
+                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                    Mark all as read
+                </button>
+                <button
+                    onClick={handleClearAll}
+                    className="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-colors"
+                >
+                    Clear all
+                </button>
+            </div>
         </div>
     );
 }
@@ -84,23 +83,24 @@ export default function NovuInbox() {
                 <PopoverNotificationCenter
                     colorScheme="light"
                     showUserPreferences={true}
+                    header={() => <CustomHeader />}
                     listItem={(notification) => {
                         const payload = notification.payload as any;
                         return (
-                            <div className="flex flex-col gap-1 p-4 border-b hover:bg-gray-50 transition-colors bg-white relative">
+                            <div className="flex flex-col gap-1 p-4 hover:bg-gray-50 transition-colors bg-white relative border-b border-gray-100 last:border-0">
                                 <div className="flex justify-between items-start">
-                                    <span className="font-semibold text-sm text-gray-800">
+                                    <span className="font-bold text-sm text-gray-900">
                                         {payload.title || 'Notification'}
                                     </span>
-                                    <span className="text-[10px] text-gray-400">
+                                    <span className="text-[10px] text-gray-400 font-medium">
                                         {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-600 line-clamp-2">
+                                <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
                                     {payload.description || notification.content || 'No details'}
                                 </p>
                                 {payload.priority && (
-                                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded w-fit ${(payload.priority || '').toLowerCase() === 'high' ? 'bg-red-100 text-red-600' :
+                                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded w-fit ${(payload.priority || '').toLowerCase() === 'high' ? 'bg-red-50 text-red-600' :
                                         'bg-blue-50 text-blue-600'
                                         }`}>
                                         {payload.priority}
@@ -109,7 +109,6 @@ export default function NovuInbox() {
                             </div>
                         );
                     }}
-                    footer={() => <CustomFooter />}
                 >
                     {({ unseenCount }) => (
                         <div className="relative cursor-pointer">
