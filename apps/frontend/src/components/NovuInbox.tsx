@@ -164,8 +164,8 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
 
                         {payload.priority && (
                             <span className={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wide ${(payload.priority || '').toLowerCase() === 'high'
-                                ? 'bg-red-50 text-red-600 border border-red-100'
-                                : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                    ? 'bg-red-50 text-red-600 border border-red-100'
+                                    : 'bg-blue-50 text-blue-600 border border-blue-100'
                                 }`}>
                                 {payload.priority}
                             </span>
@@ -274,4 +274,15 @@ function NotificationHelper({ notification }: { notification: any }) {
             removeNotification={removeNotification}
         />
     );
+}
+
+function DebugLogger() {
+    const { user } = useAuthStore();
+    const { notifications } = useNotifications();
+    useEffect(() => {
+        // Log subscriber info for debugging
+        if (user) console.log("Novu Debug - SubscriberID:", user.id || user.email);
+        console.log("Novu Debug - Notification Count:", notifications?.length);
+    }, [user, notifications]);
+    return null;
 }
