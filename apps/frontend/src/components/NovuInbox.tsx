@@ -15,14 +15,18 @@ function CustomFooter() {
     // Let's make it a "Mark all read" button that looks like "Clear" for UX, 
     // as "Clear" often just means "Clear badge/unread status" in users' minds.
 
+    const handleClearAll = () => {
+        markAllAsRead();
+    };
+
     return (
         <div className="p-3 border-t bg-gray-50 flex justify-end">
             <button
-                onClick={() => markAllAsRead()}
+                onClick={handleClearAll}
                 className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-red-600 transition-colors"
             >
                 <Trash2 className="h-3.5 w-3.5" />
-                Clear all
+                Clear all (Mark read)
             </button>
         </div>
     );
