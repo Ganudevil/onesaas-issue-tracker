@@ -8,14 +8,30 @@ export default function NovuInbox() {
     const user = useAuthStore((state) => state.user);
     const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID;
 
-    // Simple null checks - if we don't have what we need, don't render
-    if (!user?.email || !appId) {
+    // Try multiple fields to get a subscriber ID
+    const subscriberId = user?.email || user?.id;
+
+    // Debug logging to see what we actually have
+    console.log('[NovuInbox] Debug:', {
+        hasUser: !!user,
+        userEmail: user?.email,
+        userId: user?.id,
+        userName: user?.name,
+        subscriberId: subscriberId,
+        appId: appId
+    });
+
+    // If we don't have EITHER email OR id, don't render
+    if (!subscriberId || !appId) {
+        console.warn('[NovuInbox] Not rendering - missing subscriberId or appId');
         return null;
     }
 
+    console.log('[NovuInbox] Rendering with subscriberId:', subscriberId);
+
     return (
         <NovuProvider
-            subscriberId={user.email}
+            subscriberId={subscriberId}
             applicationIdentifier={appId}
         >
             <PopoverNotificationCenter colorScheme="light">
