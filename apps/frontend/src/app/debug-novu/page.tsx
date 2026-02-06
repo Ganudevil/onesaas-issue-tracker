@@ -1,12 +1,7 @@
 'use client';
 
 import { useAuthStore } from '../../store/useAuthStore';
-// Universal import fallback for debug page
-import * as NovuNotificationCenter from '@novu/notification-center';
-const NovuProvider = NovuNotificationCenter.NovuProvider ||
-    (NovuNotificationCenter as any).default?.NovuProvider;
-const PopoverNotificationCenter = NovuNotificationCenter.PopoverNotificationCenter ||
-    (NovuNotificationCenter as any).default?.PopoverNotificationCenter;
+import { NovuProvider, PopoverNotificationCenter } from '@novu/notification-center';
 
 import { useState, useEffect } from 'react';
 
