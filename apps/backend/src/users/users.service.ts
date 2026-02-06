@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
+import { syncNovuSubscriber } from '../services/novuService';
 
 @Injectable()
 export class UsersService {
@@ -31,7 +32,16 @@ export class UsersService {
                 `SELECT * FROM "${schema}".users WHERE email = $1 AND deleted_at IS NULL LIMIT 1`,
                 [email]
             );
-            return this.mapUser(result.rows[0]);
+            const user = this.mapUser(result.rows[0]);
+
+            // Sync with Novu in background if user exists
+            if (user) {
+                syncNovuSubscriber(user.id, user.email, user.display_name).catch(err =>
+                    console.error('[UsersService] Failed to sync with Novu:', err)
+                );
+            }
+
+            return user;
         } catch (error) {
             console.error('Error in getUserByEmail:', error);
             throw new InternalServerErrorException((error as any).message);
@@ -48,7 +58,15 @@ export class UsersService {
                 `INSERT INTO "${schema}".users (id, email, role, display_name) VALUES ($1, $2, $3, $4) RETURNING *`,
                 [user.id, user.email, user.role || 'member', user.display_name]
             );
-            return this.mapUser(result.rows[0]);
+            const createdUser = this.mapUser(result.rows[0]);
+
+            // Sync new user with Novu
+            if (createdUser) {
+                console.log('[UsersService] Syncing new user with Novu:', createdUser.email);
+                await syncNovuSubscriber(createdUser.id, createdUser.email, createdUser.display_name);
+            }
+
+            return createdUser;
         } catch (error) {
             console.error('Error in create:', error);
             throw new InternalServerErrorException((error as any).message);
