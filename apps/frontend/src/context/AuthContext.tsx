@@ -67,9 +67,10 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode, auth: any }> = ({
                     const currentTenant = tenantId || 'tenant1';
 
                     // Add timeout to prevent hanging
+                    // Increased to 60s to handle Render free tier cold starts (can take 50+ seconds)
                     const syncPromise = db.ensureUserExists(auth.user.profile.sub || '', email, role, displayName, token, currentTenant);
                     const timeoutPromise = new Promise<null>((_, reject) =>
-                        setTimeout(() => reject(new Error('Sync timeout')), 15000)
+                        setTimeout(() => reject(new Error('Sync timeout - backend may be sleeping (Render free tier)')), 60000)
                     );
 
                     const dbUser = await Promise.race([syncPromise, timeoutPromise]);
