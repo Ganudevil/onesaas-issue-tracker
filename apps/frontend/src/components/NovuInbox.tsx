@@ -9,8 +9,8 @@ export default function NovuInbox() {
     const authState = useAuthStore();
     const user = authState.user;
 
-    // Production App ID - hardcoded fallback
-    const APP_ID = 'Wxe7z9RHue8E';
+    // Production App ID - CORRECTED (was Wxe7z9RHue8E, should be Ixc7z98Hcs8E)
+    const APP_ID = 'Ixc7z98Hcs8E';
     const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID || APP_ID;
 
     // Try multiple fields for subscriber ID
