@@ -22,30 +22,38 @@ function timeAgo(date: string | Date) {
 }
 
 function CustomHeader() {
-    // Robust Clear All Implementation: Get notifications and mark unread ones properly
-    const { markAsRead, notifications } = useNotifications() as any;
+    // Robust Access: Cast to any to ensure we get the methods even if types are loose
+    const { markAsRead, notifications, markAllAsRead } = useNotifications() as any;
 
     const handleClearAll = () => {
-        if (!notifications) return;
-        // Filter unread and mark them
-        // Note: notifications might be paginated, this handles loaded ones.
-        // For simpler UX, we try to mark all visible ones.
-        const unreadIds = notifications.filter((n: any) => !n.read).map((n: any) => n._id);
-        if (unreadIds.length > 0) {
-            markAsRead(unreadIds);
+        // "Clear All" Implementation
+        // Strategy 1: markAllAsRead() - The global function
+        if (markAllAsRead) {
+            markAllAsRead();
+            return;
+        }
+
+        // Strategy 2: Manual Iteration (Fallback)
+        if (notifications && notifications.length > 0) {
+            const unreadIds = notifications.filter((n: any) => !n.read).map((n: any) => n._id);
+            if (unreadIds.length > 0) {
+                markAsRead(unreadIds);
+            }
         }
     };
 
-    // Also "Mark all read" link should use the same robust logic or the global function if reliable
+    // "Mark all read" - Same logic
     const handleMarkAllRead = () => {
-        const unreadIds = notifications?.filter((n: any) => !n.read).map((n: any) => n._id) || [];
-        if (unreadIds.length > 0) {
-            markAsRead(unreadIds);
+        if (markAllAsRead) {
+            markAllAsRead();
+        } else if (notifications) {
+            const unreadIds = notifications.filter((n: any) => !n.read).map((n: any) => n._id);
+            if (unreadIds.length > 0) markAsRead(unreadIds);
         }
     };
 
     return (
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white shadow-sm z-10 relative">
             <h2 className="font-bold text-lg text-gray-900">Notifications</h2>
             <div className="flex items-center gap-4">
                 <button
@@ -66,21 +74,22 @@ function CustomHeader() {
 }
 
 export default function NovuInbox() {
-    // Get the entire auth state
     const authState = useAuthStore();
-    const router = useRouter(); // Initialize router
+    const router = useRouter();
     const user = authState.user;
 
-    // Production App ID
     const APP_ID = 'Wxa7z9RHue8E';
     const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID || APP_ID;
 
-    // Try multiple fields for subscriber ID - MUST match backend (uses UUID)
-    // ⚠️ Backend syncs user.id (UUID), so we MUST prioritize id over email
+    // Use ID directly. Ensure this matches what backend sends (UUID)
     const subscriberId = user?.id || user?.email || null;
 
+    // Debug Log
+    if (subscriberId) {
+        console.log('[NovuInbox] Subscriber Connected:', subscriberId);
+    }
+
     if (!subscriberId || !appId) {
-        // Fail silently or log in dev
         return null;
     }
 
@@ -95,11 +104,12 @@ export default function NovuInbox() {
                 header={() => <CustomHeader />}
                 listItem={(notification) => {
                     const payload = notification.payload as any;
-                    // Check if unread (Novu uses 'read' boolean)
                     const isUnread = !notification.read;
 
                     const handleNotificationClick = () => {
-                        // Navigate logic
+                        // Mark read on click not explicitly needed if navigation happens, 
+                        // but good for UX. The standard item usually handles it.
+                        // We rely on user "Clear All" or "Mark Read" for bulk.
                         if (payload.issueId) {
                             router.push(`/issues/${payload.issueId}`);
                         } else if (payload.url) {
@@ -110,14 +120,17 @@ export default function NovuInbox() {
                     return (
                         <div
                             onClick={handleNotificationClick}
-                            className={`flex flex-col gap-1 p-4 border-b border-gray-200 last:border-0 cursor-pointer transition-colors relative
+                            className={`
+                                flex flex-col gap-1 p-4 border-b border-gray-200 last:border-0 cursor-pointer 
+                                transition-all duration-200 ease-in-out relative
                                 ${isUnread ? 'bg-blue-50/60' : 'bg-white'} 
-                                hover:bg-gray-50
+                                hover:bg-white hover:scale-[1.02] hover:shadow-lg hover:z-20 hover:border-transparent
+                                origin-center transform
                             `}
                         >
-                            {/* Unread Indicator: Blue vertical bar on left + dot */}
+                            {/* Unread Indicator: Blue vertical bar */}
                             {isUnread && (
-                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-l"></div>
                             )}
 
                             <div className="flex justify-between items-start">
@@ -126,31 +139,27 @@ export default function NovuInbox() {
                                 </span>
                             </div>
 
-                            <p className="text-xs text-gray-600 line-clamp-2 mt-0.5">
+                            <p className="text-xs text-gray-600 line-clamp-2 mt-1 leading-relaxed">
                                 {payload.description || notification.content || 'No details'}
                             </p>
 
-                            <div className="flex items-center gap-2 mt-2">
-                                <span className="text-[10px] text-gray-500 font-medium">
+                            <div className="flex items-center gap-2 mt-3 justify-between">
+                                <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${(payload.priority || '').toLowerCase() === 'high' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
+                                    {payload.priority || 'NORMAL'}
+                                </span>
+                                <span className="text-[10px] text-gray-400 font-medium">
                                     {timeAgo(notification.createdAt)}
                                 </span>
-                                {payload.priority && (
-                                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0 rounded ${(payload.priority || '').toLowerCase() === 'high' ? 'bg-red-100 text-red-600' :
-                                        'bg-blue-100 text-blue-600'
-                                        }`}>
-                                        {payload.priority}
-                                    </span>
-                                )}
                             </div>
                         </div>
                     );
                 }}
             >
                 {({ unseenCount }) => (
-                    <div className="relative cursor-pointer">
-                        <Bell className="h-5 w-5 text-slate-300 hover:text-cyan-400 transition-colors" />
+                    <div className="relative cursor-pointer group">
+                        <Bell className="h-5 w-5 text-slate-300 group-hover:text-cyan-400 transition-colors" />
                         {unseenCount && unseenCount > 0 ? (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center animate-pulse">
                                 {unseenCount > 99 ? '99+' : unseenCount}
                             </span>
                         ) : null}
