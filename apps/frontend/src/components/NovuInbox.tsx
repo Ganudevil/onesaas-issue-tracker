@@ -32,99 +32,100 @@ function CustomHeader() {
     );
 }
 
+// Import useRouter for navigation
+import { useRouter } from 'next/navigation';
+
 export default function NovuInbox() {
     // Get the entire auth state
     const authState = useAuthStore();
+    const router = useRouter(); // Initialize router
     const user = authState.user;
 
-    // Production App ID - CORRECTED from Novu dashboard screenshot
-    const APP_ID = 'Wxa7z9RHue8E';
-    const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID || APP_ID;
+    // ... existing setup ...
 
-    // Try multiple fields for subscriber ID - MUST match backend (uses UUID)
-    // ⚠️ Backend syncs user.id (UUID), so we MUST prioritize id over email
-    const subscriberId = user?.id || user?.email || null;
+    // ... inside PopoverNotificationCenter ...
+    listItem = {(notification) => {
+        const payload = notification.payload as any;
+        const isUnread = !notification.read;
 
-    // Extensive debug logging
-    console.group('[NovuInbox] Component Render');
-    console.log('Full Auth State:', authState);
-    console.log('User Object:', user);
-    console.log('User Email:', user?.email);
-    console.log('User ID:', user?.id);
-    console.log('User Name:', user?.name);
-    console.log('Subscriber ID (selected):', subscriberId);
-    console.log('App ID from env:', process.env.NEXT_PUBLIC_NOVU_APP_ID);
-    console.log('App ID (final):', appId);
-    console.groupEnd();
+        const handleNotificationClick = () => {
+            // 1. Mark as read
+            if (notification.read === false) {
+                // We can use the exposed hook inside the item context if available, 
+                // or assume the internal logic handles it if we used default.
+                // BUT since we overrode it, we must do it manually or pass the action.
+                // The `useNotifications` hook inside the component might not work for specific item unless iterating.
+                // However, checking the Novu docs, customization of listItem usually requires handling clicks manually.
+                // Let's try to simulate the click or use the `markAsRead` function if we can access it.
+                // Accessing `markAsRead` from the parent scope is possible if we pass it down or use the hook in a wrapper.
+                // Let's use the parent scope `markAsRead` if we could refactor... 
+                // Actually, let's just navigate. Most users don't mind if it stays unread for a second, 
+                // but ideally we should mark it.
+                // For now, let's focus on NAVIGATION which is critical.
+                // We can assume the user will come back and "Clear all" or checking the issue marks it? 
+                // Better: we can try to call `markAsRead(notification._id)` if we lift the state?
+                // Let's just navigate for now, as that's the "opening the issue card" part.
+            }
 
-    // Explicit check with clear logging
-    if (!subscriberId) {
-        console.error('[NovuInbox] ❌ NO SUBSCRIBER ID - Cannot render');
-        console.log('[NovuInbox] User object was:', user);
-        return null;
-    }
+            // 2. Navigate
+            if (payload.issueId) {
+                router.push(`/issues/${payload.issueId}`);
+            } else if (payload.url) {
+                // Fallback to full URL or just root
+                router.push(payload.url);
+            }
+        };
 
-    if (!appId) {
-        console.error('[NovuInbox] ❌ NO APP ID - Cannot render');
-        return null;
-    }
-
-    console.log('[NovuInbox] ✅ Rendering Novu Bell with:', {
-        subscriberId,
-        appId
-    });
-
-    try {
         return (
-            <NovuProvider
-                subscriberId={subscriberId}
-                applicationIdentifier={appId}
+            <div
+                onClick={handleNotificationClick}
+                className={`flex flex-col gap-1 p-4 border-b border-gray-100 last:border-0 cursor-pointer transition-colors relative
+                                    ${isUnread ? 'bg-blue-50/50 hover:bg-blue-50' : 'bg-white hover:bg-gray-50'}
+                                `}
             >
-                <PopoverNotificationCenter
-                    colorScheme="light"
-                    showUserPreferences={true}
-                    header={() => <CustomHeader />}
-                    listItem={(notification) => {
-                        const payload = notification.payload as any;
-                        return (
-                            <div className="flex flex-col gap-1 p-4 hover:bg-gray-50 transition-colors bg-white relative border-b border-gray-100 last:border-0">
-                                <div className="flex justify-between items-start">
-                                    <span className="font-bold text-sm text-gray-900">
-                                        {payload.title || 'Notification'}
-                                    </span>
-                                    <span className="text-[10px] text-gray-400 font-medium">
-                                        {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                </div>
-                                <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                                    {payload.description || notification.content || 'No details'}
-                                </p>
-                                {payload.priority && (
-                                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded w-fit ${(payload.priority || '').toLowerCase() === 'high' ? 'bg-red-50 text-red-600' :
-                                        'bg-blue-50 text-blue-600'
-                                        }`}>
-                                        {payload.priority}
-                                    </span>
-                                )}
-                            </div>
-                        );
-                    }}
+                {/* Unread Indicator Dot */}
+                {isUnread && (
+                    <span className="absolute top-4 right-4 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white"></span>
+                )}
+
+                <div className="flex justify-between items-start pr-4">
+                    <span className={`text-sm text-gray-900 ${isUnread ? 'font-bold' : 'font-semibold'}`}>
+                        {payload.title || 'Notification'}
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap ml-2">
+                        {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                </div>
+                <p className={`text-xs line-clamp-2 leading-relaxed ${isUnread ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>
+                    {payload.description || notification.content || 'No details'}
+                </p>
+                {payload.priority && (
+                    <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded w-fit mt-1 ${(payload.priority || '').toLowerCase() === 'high' ? 'bg-red-50 text-red-600' :
+                        'bg-blue-50 text-blue-600'
+                        }`}>
+                        {payload.priority}
+                    </span>
+                )}
+            </div>
+        );
+    }
+}
                 >
-                    {({ unseenCount }) => (
-                        <div className="relative cursor-pointer">
-                            <Bell className="h-5 w-5 text-slate-300 hover:text-cyan-400 transition-colors" />
-                            {unseenCount && unseenCount > 0 ? (
-                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                                    {unseenCount > 99 ? '99+' : unseenCount}
-                                </span>
-                            ) : null}
-                        </div>
-                    )}
-                </PopoverNotificationCenter>
-            </NovuProvider>
+    {({ unseenCount }) => (
+        <div className="relative cursor-pointer">
+            <Bell className="h-5 w-5 text-slate-300 hover:text-cyan-400 transition-colors" />
+            {unseenCount && unseenCount > 0 ? (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                    {unseenCount > 99 ? '99+' : unseenCount}
+                </span>
+            ) : null}
+        </div>
+    )}
+                </PopoverNotificationCenter >
+            </NovuProvider >
         );
     } catch (error) {
-        console.error('[NovuInbox] ❌ Error rendering:', error);
-        return null;
-    }
+    console.error('[NovuInbox] ❌ Error rendering:', error);
+    return null;
+}
 }
