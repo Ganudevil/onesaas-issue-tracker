@@ -140,7 +140,7 @@ export class IssuesService {
       if (createDto.assignedTo && createDto.assignedTo !== createDto.createdBy) {
         this.logger.log(`Issue created with assignment to different user: ${createDto.assignedTo}. Triggering notification.`);
         const assignedUser = await this.getUser(createDto.assignedTo, tenantId);
-        await this.novuService.triggerEvent('issue-assigned-jfy0', tenantId, assignedUser, {
+        await this.novuService.triggerEvent('issue-assigned-5lwm', tenantId, assignedUser, {
           issueId: issue.id,
           title: issue.title,
           description: issue.description ? issue.description.substring(0, 100) + '...' : '',
@@ -187,7 +187,7 @@ export class IssuesService {
       if (updateDto.status) {
         const targetUserId = updatedIssue.assignedTo || updatedIssue.createdBy;
         const user = await this.getUser(targetUserId, tenantId);
-        await this.novuService.triggerEvent('issue-status-changed-kyxh', tenantId, user, {
+        await this.novuService.triggerEvent('issue-status-changed-w2pt', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
           status: updatedIssue.status,
@@ -201,7 +201,7 @@ export class IssuesService {
         const user = await this.getUser(updateDto.assignedTo, tenantId);
         this.logger.log(`Resolved assigned user: ${JSON.stringify(user)}`);
 
-        await this.novuService.triggerEvent('issue-assigned-jfy0', tenantId, user, {
+        await this.novuService.triggerEvent('issue-assigned-5lwm', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
           url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
@@ -302,7 +302,7 @@ export class IssuesService {
       const targetUserId = issue.assignedTo || issue.createdBy;
       const user = await this.getUser(targetUserId, tenantId);
 
-      await this.novuService.triggerEvent('comment-added-hd9b', tenantId, user, {
+      await this.novuService.triggerEvent('comment-added-b3do', tenantId, user, {
         issueId: issue.id,
         issueTitle: issue.title,
         comment: text,
