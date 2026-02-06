@@ -176,7 +176,7 @@ export const IssueForm: React.FC<IssueFormProps> = ({ issueId }) => {
             </Button>
 
             <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-100">{isEdit ? 'Edit Issue' : 'Create New Issue'}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{isEdit ? 'Edit Issue' : 'Create New Issue'}</h1>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6 bg-[var(--bg-card)] backdrop-blur-md p-4 sm:p-6 rounded-lg border border-[var(--border-card)] shadow-sm text-[var(--text-primary)]">
