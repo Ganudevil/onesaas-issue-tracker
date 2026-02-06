@@ -27,7 +27,16 @@ You need to **manually create** the workflows in Novu Production environment.
    
 2. (Optional) Add **Email** step
    - **Subject**: `New Issue: {{payload.title}}`
-   - **Body**: `A new issue "{{payload.title}}" has been created.`
+   - **Body**:
+     ```text
+     Hi {{subscriber.firstName}},
+
+     A new issue has been created: "{{payload.title}}"
+     
+     "{{payload.description}}"
+     
+     <a href="{{payload.url}}/issues/{{payload.issueId}}">View Issue</a>
+     ```
 
 **Click "Publish"** ✅
 
