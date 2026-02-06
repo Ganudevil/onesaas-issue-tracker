@@ -29,6 +29,8 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    // Ensure we have an ID
+    const notificationId = notification._id || notification.id;
     const payload = notification.payload || {};
     const isUnread = !notification.read;
 
@@ -47,7 +49,7 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
 
         if (payload.issueId) {
             router.push(`/issues/${payload.issueId}`);
-            if (isUnread) markAsRead(notification._id);
+            if (isUnread && notificationId) markAsRead(notificationId);
         } else if (payload.url) {
             router.push(payload.url);
         }
@@ -57,18 +59,31 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
         e.stopPropagation();
         if (payload.issueId) {
             router.push(`/issues/${payload.issueId}`);
-            if (isUnread) markAsRead(notification._id);
+            if (isUnread && notificationId) markAsRead(notificationId);
         }
     };
 
     const handleMenuAction = (action: 'read' | 'remove', e: any) => {
         e.stopPropagation();
+        if (!notificationId) {
+            console.error("NovuItem: Missing notification ID", notification);
+            return;
+        }
+
         if (action === 'read') {
-            markAsRead(notification._id);
+            markAsRead(notificationId);
         } else if (action === 'remove') {
             if (removeNotification) {
-                // Call standard remove
-                removeNotification(notification._id);
+                // IMPORTANT: useRemoveNotification hook often expects the messageId in an object OR as a string depending on version.
+                // The error ".../messages/undefined" strongly suggests it accessed `arg.messageId` on a string.
+                // So we try passing an object: { messageId: id }
+                try {
+                    removeNotification({ messageId: notificationId });
+                } catch (err) {
+                    // Fallback just in case
+                    console.warn("Retrying remove with direct string...");
+                    removeNotification(notificationId);
+                }
             } else {
                 console.error("Remove function not available");
             }
@@ -169,11 +184,13 @@ function CustomHeader() {
         if (markAllAsRead) {
             markAllAsRead();
         } else if (notifications) {
-            const unreadIds = notifications.filter((n: any) => !n.read).map((n: any) => n._id);
+            // Fallback: manually mark loaded ones
+            const unreadIds = notifications.filter((n: any) => !n.read).map((n: any) => n._id || n.id);
             if (unreadIds.length > 0) markAsRead(unreadIds);
         }
     };
 
+    // Clear All now just mimics Mark All Read for safety and because API is tricky for bulk delete.
     const handleClearAll = () => {
         handleMarkAllRead();
     };
@@ -240,15 +257,13 @@ function NotificationHelper({ notification }: { notification: any }) {
     // Use the standard hook for basic actions
     const { markAsRead } = useNotifications() as any;
 
-    // Try to use the specific remove hook if it exists in v2
-    // If usage of this hook fails at runtime (not exists), we might need fallback
-    // We suppress error by casting to any or try-catch context
+    // Try to use the specific remove hook
     let removeNotification: any = null;
     try {
         const removeContext = useRemoveNotification();
         removeNotification = removeContext?.removeNotification;
     } catch (err) {
-        // Fallback or ignore
+        console.error("NovuInbox: Remove hook failed", err);
     }
 
     return (
