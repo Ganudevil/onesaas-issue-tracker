@@ -180,6 +180,15 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
 function CustomHeader() {
     const { markAllAsRead, notifications, markAsRead } = useNotifications() as any;
 
+    // Get the remove function from the specific hook
+    let removeNotification: any = null;
+    try {
+        const removeContext = useRemoveNotification();
+        removeNotification = removeContext?.removeNotification;
+    } catch (e) {
+        console.error("CustomHeader: Failed to get remove context", e);
+    }
+
     const handleMarkAllRead = () => {
         if (markAllAsRead) {
             markAllAsRead();
@@ -190,9 +199,28 @@ function CustomHeader() {
         }
     };
 
-    // Clear All now just mimics Mark All Read for safety and because API is tricky for bulk delete.
-    const handleClearAll = () => {
-        handleMarkAllRead();
+    const handleClearAll = async () => {
+        if (!notifications || notifications.length === 0) return;
+
+        if (!removeNotification) {
+            console.warn("Clear All: Remove function not available, falling back to Mark All Read");
+            handleMarkAllRead();
+            return;
+        }
+
+        // Iterate and remove each notification
+        const idsToRemove = notifications.map((n: any) => n._id || n.id);
+
+        // Limit to prevent browser issues if list is huge (Novu pages anyway)
+        // We iterate and try to remove each.
+        for (const id of idsToRemove) {
+            try {
+                // IMPORTANT: Pass object { messageId: id } as per fix
+                await removeNotification({ messageId: id });
+            } catch (err) {
+                console.error(`Failed to remove notification ${id}`, err);
+            }
+        }
     };
 
     return (
