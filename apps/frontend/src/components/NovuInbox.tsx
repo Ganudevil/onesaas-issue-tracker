@@ -341,7 +341,7 @@ export default function NovuInbox() {
             subscriberId={subscriberId}
             applicationIdentifier={appId}
             backendUrl="https://api.novu.co"
-            socketUrl="https://ws.novu.co"
+            socketUrl="wss://ws.novu.co"
         >
             <CustomNotificationCenter />
         </NovuProvider>
