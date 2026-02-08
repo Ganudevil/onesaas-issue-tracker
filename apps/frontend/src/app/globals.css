@@ -120,7 +120,12 @@ body {
 }
 
 /* Constrain Novu Popover Width */
+/* Constrain Novu Popover Width */
 .mantine-Popover-dropdown {
   max-width: 380px !important;
   width: 100% !important;
+  max-height: 500px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  right: 0 !important;
 }

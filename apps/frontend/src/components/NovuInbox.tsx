@@ -105,13 +105,14 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
         <div
             onClick={handleClick}
             className={`
-                group relative mb-3 p-4 rounded-xl border transition-all duration-300 transform
+                group relative mb-2 p-4 rounded-xl border transition-all duration-200
                 ${isUnread
                     ? 'bg-blue-50 border-blue-200'
                     : 'bg-white border-gray-100'
                 }
-                hover:scale-[1.02] hover:shadow-lg hover:z-10
+                hover:shadow-md
                 cursor-pointer
+                w-full box-border
             `}
             style={{
                 boxShadow: isUnread ? '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)' : '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
