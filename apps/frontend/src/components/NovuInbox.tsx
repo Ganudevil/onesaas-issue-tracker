@@ -147,7 +147,8 @@ function CustomNotificationCenter() {
 
     // Novu Hooks
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { notifications, isLoading, markAsRead, markAllAsRead } = useNotifications() as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { notifications, isLoading, markAsRead, markAllAsRead, error } = useNotifications() as any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: unseenCountData } = useUnseenCount() as any;
     const unseenCount = unseenCountData?.count ?? 0;
@@ -155,15 +156,21 @@ function CustomNotificationCenter() {
     const [showTimeoutError, setShowTimeoutError] = useState(false);
 
     useEffect(() => {
+        if (error) {
+            console.error("Novu notification error:", error);
+        }
+    }, [error]);
+
+    useEffect(() => {
         let timer: NodeJS.Timeout;
-        if (isLoading) {
+        if (isLoading && !error) {
             setShowTimeoutError(false);
             timer = setTimeout(() => {
                 setShowTimeoutError(true);
-            }, 5000); // 5s timeout
+            }, 7000); // 7s timeout
         }
         return () => clearTimeout(timer);
-    }, [isLoading]);
+    }, [isLoading, error]);
 
     let removeNotification: any = null;
     try {
@@ -253,7 +260,18 @@ function CustomNotificationCenter() {
 
                     {/* Scrollable Body */}
                     <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 bg-gray-50/50">
-                        {isLoading ? (
+                        {error ? (
+                            <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                                <p className="text-sm text-red-500 font-medium mb-2">Unavailable</p>
+                                <p className="text-xs text-gray-500 mb-3">{error.message || "Failed to load notifications"}</p>
+                                <button
+                                    onClick={() => window.location.reload()}
+                                    className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md transition-colors"
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        ) : isLoading ? (
                             showTimeoutError ? (
                                 <div className="flex flex-col items-center justify-center h-full text-center p-4">
                                     <p className="text-sm text-red-500 font-medium mb-2">Connection Timeout</p>
@@ -269,9 +287,13 @@ function CustomNotificationCenter() {
                                 <div className="flex justify-center items-center h-full text-gray-400">Loading...</div>
                             )
                         ) : notifications.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-full text-gray-500 py-10">
-                                <Bell className="h-12 w-12 text-gray-300 mb-4" />
-                                <p className="text-sm">No notifications yet</p>
+                            <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 py-10 px-4">
+                                <div className="bg-gray-50 p-4 rounded-full mb-4 relative">
+                                    <Bell className="h-8 w-8 text-gray-400" />
+                                    <span className="absolute top-2 right-3 text-xs font-bold text-gray-400">z</span>
+                                    <span className="absolute top-1 right-1 text-[10px] font-bold text-gray-400">z</span>
+                                </div>
+                                <p className="text-sm font-medium text-gray-900">Nothing new to see here yet</p>
                             </div>
                         ) : (
                             <div className="flex flex-col gap-2">
