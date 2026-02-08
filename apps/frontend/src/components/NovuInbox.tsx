@@ -1,7 +1,7 @@
 'use client';
 
 import { Bell, MoreVertical, Check, Trash2, X } from 'lucide-react';
-import { NovuProvider, useNotifications, useRemoveNotification, useUnseenCount, useMarkAsRead } from '@novu/notification-center';
+import { NovuProvider, useNotifications, useRemoveNotification, useUnseenCount } from '@novu/notification-center';
 import { useAuthStore } from '../store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
@@ -146,8 +146,24 @@ function CustomNotificationCenter() {
     const triggerRef = useRef<HTMLDivElement>(null);
 
     // Novu Hooks
-    const { notifications, isLoading, markAsRead, markAllAsRead } = useNotifications();
-    const { unseenCount } = useUnseenCount();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { notifications, isLoading, markAsRead, markAllAsRead } = useNotifications() as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: unseenCountData } = useUnseenCount() as any;
+    const unseenCount = unseenCountData?.count ?? 0;
+
+    const [showTimeoutError, setShowTimeoutError] = useState(false);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isLoading) {
+            setShowTimeoutError(false);
+            timer = setTimeout(() => {
+                setShowTimeoutError(true);
+            }, 5000); // 5s timeout
+        }
+        return () => clearTimeout(timer);
+    }, [isLoading]);
 
     let removeNotification: any = null;
     try {
@@ -183,6 +199,7 @@ function CustomNotificationCenter() {
         const idsToRemove = notifications.map((n: any) => n._id || n.id);
         for (const id of idsToRemove) {
             try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 await removeNotification({ messageId: id });
             } catch (err) {
                 console.error(`Failed to remove notification ${id}`, err);
@@ -237,7 +254,20 @@ function CustomNotificationCenter() {
                     {/* Scrollable Body */}
                     <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 bg-gray-50/50">
                         {isLoading ? (
-                            <div className="flex justify-center items-center h-full text-gray-400">Loading...</div>
+                            showTimeoutError ? (
+                                <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                                    <p className="text-sm text-red-500 font-medium mb-2">Connection Timeout</p>
+                                    <p className="text-xs text-gray-500 mb-3">Please check your internet connection or disable network throttling.</p>
+                                    <button
+                                        onClick={() => window.location.reload()}
+                                        className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md transition-colors"
+                                    >
+                                        Reload Page
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex justify-center items-center h-full text-gray-400">Loading...</div>
+                            )
                         ) : notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-gray-500 py-10">
                                 <Bell className="h-12 w-12 text-gray-300 mb-4" />
@@ -262,7 +292,10 @@ function CustomNotificationCenter() {
                     <div className="p-3 border-t border-gray-100 bg-white text-center shrink-0">
                         <div className="flex items-center justify-center gap-1 text-[10px] text-gray-400">
                             Powered By
-                            <img src="https://novu.co/img/logo.png" alt="Novu" className="h-3 ml-1 opacity-60" />
+                            <svg className="h-4 w-auto ml-1 opacity-80" viewBox="0 0 100 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11.66 2.05L8.7 6.42a1.5 1.5 0 01-2.48 0L3.25 2.05a1.5 1.5 0 00-2.49 1.66l5.05 7.57a3.5 3.5 0 005.8 0l5.05-7.57a1.5 1.5 0 00-2.49-1.66z" fill="#FF5252" />
+                                <path d="M22 6c0-2.2 1.8-4 4-4h4c2.2 0 4 1.8 4 4v12c0 2.2-1.8 4-4 4h-4c-2.2 0-4-1.8-4-4V6zm4 0v12h4V6h-4z" fill="#333" />
+                            </svg>
                             <span className="font-bold text-pink-500">novu</span>
                         </div>
                     </div>
@@ -282,7 +315,12 @@ export default function NovuInbox() {
     if (!subscriberId || !appId) return null;
 
     return (
-        <NovuProvider subscriberId={subscriberId} applicationIdentifier={appId}>
+        <NovuProvider
+            subscriberId={subscriberId}
+            applicationIdentifier={appId}
+            backendUrl="https://api.novu.co"
+            socketUrl="https://ws.novu.co"
+        >
             <CustomNotificationCenter />
         </NovuProvider>
     );
