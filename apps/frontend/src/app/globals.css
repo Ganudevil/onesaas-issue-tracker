@@ -118,3 +118,9 @@ body {
   background: #3E3B5E;
   /* Lighter Indigo */
 }
+
+/* Constrain Novu Popover Width */
+.mantine-Popover-dropdown {
+  max-width: 380px !important;
+  width: 100% !important;
+}

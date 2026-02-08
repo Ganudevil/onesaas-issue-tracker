@@ -150,9 +150,9 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
                         {payload.title || 'Notification'}
                     </h4>
 
-                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-3">
+                    <div className="text-xs text-gray-500 leading-relaxed mb-3 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent pr-1 break-words">
                         {payload.description || notification.content || 'No details'}
-                    </p>
+                    </div>
 
                     <div className="flex items-center gap-3">
                         <button
@@ -164,8 +164,8 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
 
                         {payload.priority && (
                             <span className={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wide ${(payload.priority || '').toLowerCase() === 'high'
-                                    ? 'bg-red-50 text-red-600 border border-red-100'
-                                    : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                ? 'bg-red-50 text-red-600 border border-red-100'
+                                : 'bg-blue-50 text-blue-600 border border-blue-100'
                                 }`}>
                                 {payload.priority}
                             </span>
