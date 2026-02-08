@@ -71,7 +71,17 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
         }
 
         if (action === 'read') {
-            markAsRead(notificationId);
+            try {
+                markAsRead(notificationId);
+            } catch (err) {
+                console.warn("Retrying markAsRead with object format...");
+                // Try object format if string fails, though mostly string is correct for markAsRead
+                try {
+                    markAsRead({ messageId: notificationId });
+                } catch (e) {
+                    console.error("Failed to mark as read", e);
+                }
+            }
         } else if (action === 'remove') {
             if (removeNotification) {
                 // IMPORTANT: useRemoveNotification hook often expects the messageId in an object OR as a string depending on version.
@@ -150,7 +160,7 @@ const NotificationItem = ({ notification, markAsRead, removeNotification }: any)
                         {payload.title || 'Notification'}
                     </h4>
 
-                    <div className="text-xs text-gray-500 leading-relaxed mb-3 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent pr-1 break-words">
+                    <div className="text-xs text-gray-500 leading-normal mb-1 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent pr-1 break-words whitespace-pre-wrap">
                         {payload.description || notification.content || 'No details'}
                     </div>
 
