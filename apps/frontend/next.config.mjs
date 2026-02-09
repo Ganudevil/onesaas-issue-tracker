@@ -30,7 +30,7 @@ const nextConfig = {
                 headers: [
                     {
                         key: 'Content-Security-Policy',
-                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.novu.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.novu.co https://avatars.githubusercontent.com; connect-src 'self' https://api.novu.co https://ws.novu.co wss://ws.novu.co https://*.novu.co;"
+                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.novu.co https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.novu.co https://avatars.githubusercontent.com; connect-src 'self' https://api.novu.co https://ws.novu.co wss://ws.novu.co https://*.novu.co https://lemur-9.cloud-iam.com https://vercel.live;"
                     }
                 ],
             },
