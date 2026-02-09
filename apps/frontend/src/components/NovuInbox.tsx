@@ -148,33 +148,28 @@ function CustomNotificationCenter() {
     // Novu Hooks
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { notifications: rawNotifications, isLoading, markAsRead, markAllAsRead, error } = useNotifications() as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { notifications: rawNotifications, isLoading: initialLoading, markAsRead, markAllAsRead, error, refetch } = useNotifications() as any;
     const notifications = rawNotifications || [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: unseenCountData } = useUnseenCount() as any;
     const unseenCount = unseenCountData?.count ?? 0;
 
-    const [showTimeoutError, setShowTimeoutError] = useState(false);
+    // Force loading to false after a timeout to prevent infinite spinner
+    const [isForceLoaded, setIsForceLoaded] = useState(false);
+    const isLoading = initialLoading && !isForceLoaded;
 
     useEffect(() => {
-        if (error) {
-            console.error("Novu notification error:", error);
-        }
-    }, [error]);
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (isLoading && !error) {
-            setShowTimeoutError(false);
-            timer = setTimeout(() => {
-                setShowTimeoutError(true);
-            }, 5000); // 5s timeout fallback
-        } else {
-            // Reset timeout error if loading finishes or error occurs
-            setShowTimeoutError(false);
-        }
+        // Force load complete after 3 seconds even if socket hangs
+        const timer = setTimeout(() => {
+            setIsForceLoaded(true);
+            // Attempt to refetch if empty
+            if (notifications.length === 0 && refetch) {
+                refetch();
+            }
+        }, 3000);
         return () => clearTimeout(timer);
-    }, [isLoading, error]);
+    }, [notifications.length, refetch]);
 
     let removeNotification: any = null;
     try {
@@ -275,7 +270,7 @@ function CustomNotificationCenter() {
                                     Retry
                                 </button>
                             </div>
-                        ) : (isLoading && !showTimeoutError) ? (
+                        ) : (isLoading) ? (
                             <div className="flex justify-center items-center h-full text-gray-400">Loading...</div>
                         ) : notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 py-10 px-4">
@@ -285,8 +280,8 @@ function CustomNotificationCenter() {
                                     <span className="absolute top-1 right-1 text-[10px] font-bold text-gray-400">z</span>
                                 </div>
                                 <p className="text-sm font-medium text-gray-900">Nothing new to see here yet</p>
-                                {showTimeoutError && (
-                                    <p className="text-[10px] text-gray-400 mt-2">(Connection timed out - Live updates paused)</p>
+                                {isForceLoaded && (
+                                    <p className="text-[10px] text-gray-400 mt-2">(Live updates may be delayed)</p>
                                 )}
                             </div>
                         ) : (
@@ -300,9 +295,7 @@ function CustomNotificationCenter() {
                                         onClose={() => setIsOpen(false)}
                                     />
                                 ))}
-                                {showTimeoutError && (
-                                    <p className="text-[10px] text-center text-gray-400 py-2">Offline mode</p>
-                                )}
+
                             </div>
                         )}
                     </div>
