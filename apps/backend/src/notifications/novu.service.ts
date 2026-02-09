@@ -9,7 +9,7 @@ export class NovuService {
 
     constructor() {
         // Fallback to hardcoded key if env var is missing/empty
-        const apiKey = process.env.NOVU_API_KEY || '84ec40b73ccba3e7205185bff4e00ffe';
+        const apiKey = process.env.NOVU_API_KEY || '0e6ea8224d1faabe42f379cff81a2fc5'; // Production Key (Matches Frontend App ID)
         if (apiKey) {
             this.novu = new Novu(apiKey);
             this.logger.log('Novu initialized with API Key');

@@ -169,6 +169,9 @@ function CustomNotificationCenter() {
             timer = setTimeout(() => {
                 setShowTimeoutError(true);
             }, 5000); // 5s timeout fallback
+        } else {
+            // Reset timeout error if loading finishes or error occurs
+            setShowTimeoutError(false);
         }
         return () => clearTimeout(timer);
     }, [isLoading, error]);
