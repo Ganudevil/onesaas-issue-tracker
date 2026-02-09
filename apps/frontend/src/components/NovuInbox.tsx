@@ -148,7 +148,8 @@ function CustomNotificationCenter() {
     // Novu Hooks
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { notifications, isLoading, markAsRead, markAllAsRead, error } = useNotifications() as any;
+    const { notifications: rawNotifications, isLoading, markAsRead, markAllAsRead, error } = useNotifications() as any;
+    const notifications = rawNotifications || [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: unseenCountData } = useUnseenCount() as any;
     const unseenCount = unseenCountData?.count ?? 0;
