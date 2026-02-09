@@ -167,7 +167,7 @@ function CustomNotificationCenter() {
             setShowTimeoutError(false);
             timer = setTimeout(() => {
                 setShowTimeoutError(true);
-            }, 7000); // 7s timeout
+            }, 60000); // 60s timeout
         }
         return () => clearTimeout(timer);
     }, [isLoading, error]);
@@ -330,18 +330,31 @@ function CustomNotificationCenter() {
 export default function NovuInbox() {
     const authState = useAuthStore();
     const user = authState.user;
+    // Default to the Production ID based on user screenshot
     const APP_ID = 'Wxa7z9RHue8E';
     const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID || APP_ID;
     const subscriberId = user?.id || user?.email || null;
 
     if (!subscriberId || !appId) return null;
 
+    const backendUrl = process.env.NEXT_PUBLIC_NOVU_BACKEND_URL || 'https://api.novu.co';
+    const socketUrl = process.env.NEXT_PUBLIC_NOVU_SOCKET_URL || 'wss://ws.novu.co';
+
+    // Debug logging to help troubleshoot connection issues
+    console.log('[NovuInbox] Config:', {
+        appId,
+        backendUrl,
+        socketUrl,
+        subscriberId,
+        region: 'US (default)'
+    });
+
     return (
         <NovuProvider
             subscriberId={subscriberId}
             applicationIdentifier={appId}
-            backendUrl="https://api.novu.co"
-            socketUrl="wss://ws.novu.co"
+            backendUrl={backendUrl}
+            socketUrl={socketUrl}
         >
             <CustomNotificationCenter />
         </NovuProvider>

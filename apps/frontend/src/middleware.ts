@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     font-src 'self' https://fonts.gstatic.com data:;
     img-src 'self' data: https://*.novu.co https://avatars.githubusercontent.com;
-    connect-src 'self' https://api.novu.co https://ws.novu.co wss://ws.novu.co https://*.novu.co https://lemur-9.cloud-iam.com https://vercel.live https://*.vercel.live https://onesaas-backend.onrender.com;
+    connect-src 'self' https://api.novu.co https://ws.novu.co wss://ws.novu.co https://*.novu.co wss://*.novu.co https://lemur-9.cloud-iam.com https://vercel.live https://*.vercel.live https://onesaas-backend.onrender.com;
     frame-src 'self' https://vercel.live https://*.vercel.live;
   `;
     // Replace newlines with spaces
