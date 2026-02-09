@@ -5,6 +5,7 @@ import { NovuProvider, useNotifications, useRemoveNotification, useUnseenCount }
 import { useAuthStore } from '../store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
+import { useNovuDirectAPI } from '../hooks/useNovuDirectAPI';
 
 // Helper for relative time
 function timeAgo(date: string | Date) {
@@ -46,7 +47,7 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, onClos
 
         if (payload.issueId) {
             router.push(`/issues/${payload.issueId}`);
-            if (isUnread && notificationId) markAsRead(notificationId);
+            if (isUnread && notificationId && typeof markAsRead === 'function') markAsRead(notificationId);
             onClose(); // Close drawer on navigation
         } else if (payload.url) {
             router.push(payload.url);
@@ -68,13 +69,15 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, onClos
         if (!notificationId) return;
 
         if (action === 'read') {
-            try {
-                markAsRead(notificationId);
-            } catch (err) {
-                try { markAsRead({ messageId: notificationId }); } catch (e) { console.error(e); }
+            if (typeof markAsRead === 'function') {
+                try {
+                    markAsRead(notificationId);
+                } catch (err) {
+                    try { markAsRead({ messageId: notificationId }); } catch (e) { console.error(e); }
+                }
             }
         } else if (action === 'remove') {
-            if (removeNotification) {
+            if (removeNotification && typeof removeNotification === 'function') {
                 try {
                     removeNotification({ messageId: notificationId });
                 } catch (err) {
@@ -142,42 +145,23 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, onClos
 
 function CustomNotificationCenter() {
     const [isOpen, setIsOpen] = useState(false);
+    const router = useRouter();
     const containerRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLDivElement>(null);
 
-    // Novu Hooks
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { notifications: rawNotifications, isLoading: initialLoading, markAsRead, markAllAsRead, error, refetch } = useNotifications() as any;
-    const notifications = rawNotifications || [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: unseenCountData } = useUnseenCount() as any;
-    const unseenCount = unseenCountData?.count ?? 0;
+    // NEW: Use custom direct API hook (bypasses broken Integration Primary requirement)
+    const authState = useAuthStore();
+    const user = authState.user;
+    const PRODUCTION_APP_ID = 'Wxa7z9RHue8E';
+    const subscriberId = user?.id || user?.email || null;
 
-    // Force loading to false after a timeout to prevent infinite spinner
-    const [isForceLoaded, setIsForceLoaded] = useState(false);
-    const isLoading = initialLoading && !isForceLoaded;
-
-    useEffect(() => {
-        // Force load complete after 3 seconds even if socket hangs
-        const timer = setTimeout(() => {
-            setIsForceLoaded(true);
-            // Attempt to refetch if empty
-            if (notifications.length === 0 && refetch) {
-                refetch();
-            }
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, [notifications.length, refetch]);
-
-    let removeNotification: any = null;
-    try {
-        const removeContext = useRemoveNotification();
-        removeNotification = removeContext?.removeNotification;
-    } catch (e) {
-        console.error("Remove hook failed", e);
-    }
+    const directAPI = useNovuDirectAPI(subscriberId, PRODUCTION_APP_ID);
+    const notifications = directAPI.notifications;
+    const isLoading = directAPI.isLoading;
+    const unseenCount = directAPI.unseenCount;
+    const markAsRead = directAPI.markAsRead;
+    const markAllAsRead = directAPI.markAllAsRead;
+    const removeNotification = directAPI.removeNotification;
 
     // Close on click outside
     useEffect(() => {
@@ -206,7 +190,7 @@ function CustomNotificationCenter() {
         for (const id of idsToRemove) {
             try {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                await removeNotification({ messageId: id });
+                await removeNotification(id);
             } catch (err) {
                 console.error(`Failed to remove notification ${id}`, err);
             }
@@ -243,7 +227,7 @@ function CustomNotificationCenter() {
                         <h2 className="font-bold text-lg text-gray-800">Notifications</h2>
                         <div className="flex gap-4">
                             <button
-                                onClick={() => markAllAsRead()}
+                                onClick={() => markAllAsRead && typeof markAllAsRead === 'function' && markAllAsRead()}
                                 className="text-xs font-bold text-blue-600 hover:text-blue-700"
                             >
                                 Mark all read
@@ -259,18 +243,7 @@ function CustomNotificationCenter() {
 
                     {/* Scrollable Body */}
                     <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 bg-gray-50/50">
-                        {error ? (
-                            <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                                <p className="text-sm text-red-500 font-medium mb-2">Unavailable</p>
-                                <p className="text-xs text-gray-500 mb-3">{error.message || "Failed to load notifications"}</p>
-                                <button
-                                    onClick={() => window.location.reload()}
-                                    className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md transition-colors"
-                                >
-                                    Retry
-                                </button>
-                            </div>
-                        ) : (isLoading) ? (
+                        {(isLoading) ? (
                             <div className="flex justify-center items-center h-full text-gray-400">Loading...</div>
                         ) : notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 py-10 px-4">
@@ -280,9 +253,6 @@ function CustomNotificationCenter() {
                                     <span className="absolute top-1 right-1 text-[10px] font-bold text-gray-400">z</span>
                                 </div>
                                 <p className="text-sm font-medium text-gray-900">Nothing new to see here yet</p>
-                                {isForceLoaded && (
-                                    <p className="text-[10px] text-gray-400 mt-2">(Live updates may be delayed)</p>
-                                )}
                             </div>
                         ) : (
                             <div className="flex flex-col gap-2">
@@ -320,9 +290,15 @@ function CustomNotificationCenter() {
 export default function NovuInbox() {
     const authState = useAuthStore();
     const user = authState.user;
-    // Default to the Production ID based on user screenshot
-    const APP_ID = 'Wxa7z9RHue8E';
-    const appId = process.env.NEXT_PUBLIC_NOVU_APP_ID || APP_ID;
+    // Hardcoded IDs for reference
+    const PRODUCTION_APP_ID = 'Wxa7z9RHue8E';
+    const DEVELOPMENT_APP_ID = 'rPNktu-ZF0Xq'; // This is the wrong one for the current backend
+
+    const envAppId = process.env.NEXT_PUBLIC_NOVU_APP_ID;
+
+    // CRITICAL FIX: If the Env Var is set to the Dev ID, ignore it and use Production.
+    // This protects against incorrect Vercel configuration.
+    const appId = (envAppId === DEVELOPMENT_APP_ID) ? PRODUCTION_APP_ID : (envAppId || PRODUCTION_APP_ID);
     const subscriberId = user?.id || user?.email || null;
 
     if (!subscriberId || !appId) return null;
@@ -338,6 +314,8 @@ export default function NovuInbox() {
         subscriberId,
         region: 'US (default)'
     });
+
+    console.log('[NovuInbox] User Object:', user);
 
     return (
         <NovuProvider
