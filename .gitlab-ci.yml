@@ -26,7 +26,7 @@ build-frontend:
   script:
     - echo "Building Frontend..."
     - cd apps/frontend
-    - npm ci
+    - npm install
     - npm run build
   artifacts:
     paths:
@@ -46,7 +46,7 @@ build-backend:
   script:
     - echo "Building Backend..."
     - cd backend-reference
-    - npm ci
+    - npm install
     - npm run build
   artifacts:
     paths:
