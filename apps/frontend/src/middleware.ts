@@ -23,6 +23,7 @@ export function middleware(request: NextRequest) {
         'Content-Security-Policy',
         contentSecurityPolicyHeaderValue
     );
+    requestHeaders.set('X-Middleware-Debug', 'active');
 
     const response = NextResponse.next({
         request: {

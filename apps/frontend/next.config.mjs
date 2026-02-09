@@ -29,6 +29,10 @@ const nextConfig = {
                 source: '/:path*',
                 headers: [
                     {
+                        key: 'Content-Security-Policy',
+                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.novu.co https://vercel.live https://*.vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.novu.co https://avatars.githubusercontent.com; connect-src 'self' https://api.novu.co https://ws.novu.co wss://ws.novu.co https://*.novu.co https://lemur-9.cloud-iam.com https://vercel.live https://*.vercel.live; frame-src 'self' https://vercel.live https://*.vercel.live;"
+                    },
+                    {
                         key: 'X-DNS-Prefetch-Control',
                         value: 'on'
                     },
