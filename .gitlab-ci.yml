@@ -19,14 +19,16 @@ variables:
 build-frontend:
   stage: build
   image: node:${NODE_VERSION}
+  variables:
+    NODE_OPTIONS: "--max-old-space-size=4096"
   cache:
-    key: frontend-${CI_COMMIT_REF_SLUG}-v2
+    key: frontend-${CI_COMMIT_REF_SLUG}-v3
     paths:
       - apps/frontend/node_modules/
   script:
     - echo "Building Frontend..."
     - cd apps/frontend
-    - npm install --legacy-peer-deps
+    - npm install --legacy-peer-deps --verbose
     - npm run build
   artifacts:
     paths:
@@ -39,14 +41,16 @@ build-frontend:
 build-backend:
   stage: build
   image: node:${NODE_VERSION}
+  variables:
+    NODE_OPTIONS: "--max-old-space-size=4096"
   cache:
-    key: backend-${CI_COMMIT_REF_SLUG}-v2
+    key: backend-${CI_COMMIT_REF_SLUG}-v3
     paths:
       - backend-reference/node_modules/
   script:
     - echo "Building Backend..."
     - cd backend-reference
-    - npm install --legacy-peer-deps
+    - npm install --legacy-peer-deps --verbose
     - npm run build
   artifacts:
     paths:
