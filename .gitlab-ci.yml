@@ -20,13 +20,13 @@ build-frontend:
   stage: build
   image: node:${NODE_VERSION}
   cache:
-    key: frontend-${CI_COMMIT_REF_SLUG}
+    key: frontend-${CI_COMMIT_REF_SLUG}-v2
     paths:
       - apps/frontend/node_modules/
   script:
     - echo "Building Frontend..."
     - cd apps/frontend
-    - npm install
+    - npm install --legacy-peer-deps
     - npm run build
   artifacts:
     paths:
@@ -40,13 +40,13 @@ build-backend:
   stage: build
   image: node:${NODE_VERSION}
   cache:
-    key: backend-${CI_COMMIT_REF_SLUG}
+    key: backend-${CI_COMMIT_REF_SLUG}-v2
     paths:
       - backend-reference/node_modules/
   script:
     - echo "Building Backend..."
     - cd backend-reference
-    - npm install
+    - npm install --legacy-peer-deps
     - npm run build
   artifacts:
     paths:
