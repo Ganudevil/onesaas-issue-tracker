@@ -167,7 +167,7 @@ function CustomNotificationCenter() {
             setShowTimeoutError(false);
             timer = setTimeout(() => {
                 setShowTimeoutError(true);
-            }, 60000); // 60s timeout
+            }, 5000); // 5s timeout fallback
         }
         return () => clearTimeout(timer);
     }, [isLoading, error]);
@@ -271,21 +271,8 @@ function CustomNotificationCenter() {
                                     Retry
                                 </button>
                             </div>
-                        ) : isLoading ? (
-                            showTimeoutError ? (
-                                <div className="flex flex-col items-center justify-center h-full text-center p-4">
-                                    <p className="text-sm text-red-500 font-medium mb-2">Connection Timeout</p>
-                                    <p className="text-xs text-gray-500 mb-3">Please check your internet connection or disable network throttling.</p>
-                                    <button
-                                        onClick={() => window.location.reload()}
-                                        className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md transition-colors"
-                                    >
-                                        Reload Page
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="flex justify-center items-center h-full text-gray-400">Loading...</div>
-                            )
+                        ) : (isLoading && !showTimeoutError) ? (
+                            <div className="flex justify-center items-center h-full text-gray-400">Loading...</div>
                         ) : notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 py-10 px-4">
                                 <div className="bg-gray-50 p-4 rounded-full mb-4 relative">
@@ -294,6 +281,9 @@ function CustomNotificationCenter() {
                                     <span className="absolute top-1 right-1 text-[10px] font-bold text-gray-400">z</span>
                                 </div>
                                 <p className="text-sm font-medium text-gray-900">Nothing new to see here yet</p>
+                                {showTimeoutError && (
+                                    <p className="text-[10px] text-gray-400 mt-2">(Connection timed out - Live updates paused)</p>
+                                )}
                             </div>
                         ) : (
                             <div className="flex flex-col gap-2">
@@ -306,6 +296,9 @@ function CustomNotificationCenter() {
                                         onClose={() => setIsOpen(false)}
                                     />
                                 ))}
+                                {showTimeoutError && (
+                                    <p className="text-[10px] text-center text-gray-400 py-2">Offline mode</p>
+                                )}
                             </div>
                         )}
                     </div>
