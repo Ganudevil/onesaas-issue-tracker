@@ -10,7 +10,7 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
-  NODE_VERSION: "18"
+  NODE_VERSION: "20"
 
 ########################################
 # BUILD STAGE
