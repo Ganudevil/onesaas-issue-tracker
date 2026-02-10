@@ -219,7 +219,7 @@ function CustomNotificationCenter() {
             {isOpen && (
                 <div
                     ref={containerRef}
-                    className="fixed top-20 bottom-4 inset-x-4 z-[100] max-w-md mx-auto bg-white flex flex-col overflow-hidden rounded-xl border border-gray-200 shadow-2xl sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-[380px] sm:h-[550px] sm:max-h-[85vh] sm:rounded-lg sm:border-gray-200 sm:shadow-2xl animate-in fade-in sm:zoom-in-95 duration-200"
+                    className="fixed top-16 left-1/2 -translate-x-1/2 z-[100] w-[90vw] max-w-sm h-auto max-h-[70vh] bg-white flex flex-col overflow-hidden rounded-xl border border-gray-200 shadow-2xl sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-[380px] sm:h-[550px] sm:max-h-[85vh] sm:rounded-lg sm:border-gray-200 sm:shadow-2xl animate-in fade-in zoom-in-95 duration-200"
                 >
                     {/* Fixed Header */}
                     <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-white z-10 shrink-0">

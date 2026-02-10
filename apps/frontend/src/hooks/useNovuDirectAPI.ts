@@ -57,46 +57,61 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
     const markAsRead = useCallback(async (messageId: string | { messageId: string }) => {
         if (!subscriberId) return;
         const id = typeof messageId === 'string' ? messageId : messageId.messageId;
+
+        // Optimistic Update
+        setNotifications(prev => prev.map(n => (n._id === id || (n as any).id === id) ? { ...n, read: true, seen: true } : n));
+        setUnseenCount(prev => Math.max(0, prev - 1));
+
         try {
             await fetch(
                 `${backendUrl}/notifications/${id}/read?subscriberId=${subscriberId}`,
                 { method: 'POST' }
             );
-            fetchNotifications();
+            // fetchNotifications(); // Disabled to prevent race conditions reverting the optimistic UI
         } catch (error) {
             console.error('[Novu Proxy] Mark read failed:', error);
+            fetchNotifications(); // Revert on error
         }
     }, [subscriberId, backendUrl, fetchNotifications]);
 
     const markAllAsRead = useCallback(async () => {
         if (!subscriberId) return;
+
+        // Optimistic
+        setNotifications(prev => prev.map(n => ({ ...n, read: true, seen: true })));
+        setUnseenCount(0);
+
         try {
             await fetch(
                 `${backendUrl}/notifications/mark-all-read?subscriberId=${subscriberId}`,
                 { method: 'POST' }
             );
-            fetchNotifications();
         } catch (error) {
             console.error('[Novu Proxy] Mark all read failed:', error);
+            fetchNotifications();
         }
     }, [subscriberId, backendUrl, fetchNotifications]);
 
     const removeNotification = useCallback(async (messageId: string | { messageId: string }) => {
         if (!subscriberId) return;
         const id = typeof messageId === 'string' ? messageId : messageId.messageId;
+
+        // Optimistic Update
+        setNotifications(prev => prev.filter(n => n._id !== id && (n as any).id !== id));
+
         const url = `${backendUrl}/notifications/${id}?subscriberId=${subscriberId}`;
         console.log('[Novu Proxy] Removing notification:', id, 'URL:', url);
         try {
             const res = await fetch(url, { method: 'DELETE' });
             if (!res.ok) {
-                const text = await res.text();
-                console.error('[Novu Proxy] Remove failed:', res.status, text);
+                console.error('[Novu Proxy] Remove failed:', res.status);
+                fetchNotifications(); // Revert
             } else {
                 console.log('[Novu Proxy] Remove success');
             }
-            fetchNotifications();
         } catch (error) {
             console.error('[Novu Proxy] Remove network error:', error);
+            fetchNotifications(); // Revert
         }
     }, [subscriberId, backendUrl, fetchNotifications]);
 
