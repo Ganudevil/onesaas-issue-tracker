@@ -106,7 +106,7 @@ export class NovuService {
     async deleteMessage(subscriberId: string, messageId: string) {
         if (!process.env.NOVU_API_KEY) return;
         try {
-            await fetch(
+            const response = await fetch(
                 `https://api.novu.co/v1/subscribers/${subscriberId}/messages/${messageId}`,
                 {
                     method: 'DELETE',
@@ -116,8 +116,18 @@ export class NovuService {
                     }
                 }
             );
+
+            if (!response.ok) {
+                const text = await response.text();
+                this.logger.error(`Novu API Delete Failed: ${response.status} ${text}`);
+                throw new Error(`Novu Delete Failed: ${response.status}`);
+            }
+
+            this.logger.log(`Successfully deleted message ${messageId} for ${subscriberId}`);
+            return true;
         } catch (error) {
             this.logger.error(`Failed to delete message ${messageId}`, error);
+            throw error;
         }
     }
 }
