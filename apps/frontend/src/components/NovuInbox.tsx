@@ -127,10 +127,10 @@ const NotificationItem = ({ notification, markAsRead, removeNotification, onClos
                         </div>
                     </div>
                     <h4 className={`text-sm mb-1 ${isUnread ? 'font-bold text-gray-900' : 'font-semibold text-gray-700'}`}>
-                        {payload.title || 'Notification'}
+                        {payload.issueTitle || payload.title || 'Notification'}
                     </h4>
                     <div className="text-xs text-gray-500 leading-normal mb-1 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent pr-1 break-words whitespace-pre-wrap">
-                        {payload.description || notification.content || 'No details'}
+                        {payload.comment ? `New comment: ${payload.comment}` : (payload.description || notification.content || 'No details')}
                     </div>
                     <div className="flex items-center gap-3">
                         <button onClick={handleViewIssue} className="action-btn px-4 py-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded shadow-md hover:shadow-lg hover:from-red-600 hover:to-pink-600 transition-all transform hover:-translate-y-0.5">
