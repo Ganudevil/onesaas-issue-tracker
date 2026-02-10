@@ -140,7 +140,7 @@ export class IssuesService {
       if (createDto.assignedTo && createDto.assignedTo !== createDto.createdBy) {
         this.logger.log(`Issue created with assignment to different user: ${createDto.assignedTo}. Triggering notification.`);
         const assignedUser = await this.getUser(createDto.assignedTo, tenantId);
-        await this.novuService.triggerEvent('issue-assigned', tenantId, assignedUser, {
+        await this.novuService.triggerEvent('issue-assigned-d7el', tenantId, assignedUser, {
           issueId: issue.id,
           title: issue.title,
           description: issue.description ? issue.description.substring(0, 100) + '...' : '',

@@ -45,4 +45,79 @@ export class NovuService {
             this.logger.error(`Failed to trigger Novu event ${eventName}`, error);
         }
     }
+
+    // Proxy Methods for Frontend
+    async getNotifications(subscriberId: string) {
+        if (!process.env.NOVU_API_KEY) return [];
+        try {
+            const response = await fetch(
+                `https://api.novu.co/v1/subscribers/${subscriberId}/notifications/feed`,
+                {
+                    headers: {
+                        'Authorization': `ApiKey ${process.env.NOVU_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            const data = await response.json();
+            return data.data || [];
+        } catch (error) {
+            this.logger.error(`Failed to fetch notifications for ${subscriberId}`, error);
+            return [];
+        }
+    }
+
+    async markAsRead(subscriberId: string, messageId: string) {
+        if (!process.env.NOVU_API_KEY) return;
+        try {
+            await fetch(
+                `https://api.novu.co/v1/subscribers/${subscriberId}/messages/${messageId}/read`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `ApiKey ${process.env.NOVU_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+        } catch (error) {
+            this.logger.error(`Failed to mark message ${messageId} as read`, error);
+        }
+    }
+
+    async markAllAsRead(subscriberId: string) {
+        if (!process.env.NOVU_API_KEY) return;
+        try {
+            await fetch(
+                `https://api.novu.co/v1/subscribers/${subscriberId}/messages/markAll/read`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `ApiKey ${process.env.NOVU_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+        } catch (error) {
+            this.logger.error(`Failed to mark all as read for ${subscriberId}`, error);
+        }
+    }
+
+    async deleteMessage(subscriberId: string, messageId: string) {
+        if (!process.env.NOVU_API_KEY) return;
+        try {
+            await fetch(
+                `https://api.novu.co/v1/subscribers/${subscriberId}/messages/${messageId}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `ApiKey ${process.env.NOVU_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+        } catch (error) {
+            this.logger.error(`Failed to delete message ${messageId}`, error);
+        }
+    }
 }

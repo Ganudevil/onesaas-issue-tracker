@@ -15,6 +15,8 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
     const [isLoading, setIsLoading] = useState(true);
     const [unseenCount, setUnseenCount] = useState(0);
 
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+
     const fetchNotifications = useCallback(async () => {
         if (!subscriberId) {
             setIsLoading(false);
@@ -22,29 +24,29 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
         }
 
         try {
+            // Use backend proxy
             const response = await fetch(
-                `https://api.novu.co/v1/subscribers/${subscriberId}/notifications/feed`,
-                { headers: { 'Authorization': `ApiKey ${appId}` } }
+                `${backendUrl}/notifications/feed?subscriberId=${subscriberId}`
             );
 
             if (!response.ok) {
-                console.error('[Novu Direct] API error:', response.status);
+                console.error('[Novu Proxy] API error:', response.status);
                 setIsLoading(false);
                 return;
             }
 
             const data = await response.json();
-            const messages = data.data?.data || [];
+            const messages = data || []; // Backend returns data.data already
 
-            console.log('[Novu Direct] Fetched', messages.length, 'notifications');
+            console.log('[Novu Proxy] Fetched', messages.length, 'notifications');
             setNotifications(messages);
             setUnseenCount(messages.filter((m: any) => !m.seen).length);
         } catch (error) {
-            console.error('[Novu Direct] Fetch failed:', error);
+            console.error('[Novu Proxy] Fetch failed:', error);
         } finally {
             setIsLoading(false);
         }
-    }, [subscriberId, appId]);
+    }, [subscriberId, backendUrl]);
 
     useEffect(() => {
         fetchNotifications();
@@ -56,49 +58,40 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
         if (!subscriberId) return;
         try {
             await fetch(
-                `https://api.novu.co/v1/subscribers/${subscriberId}/messages/${messageId}/read`,
-                {
-                    method: 'POST',
-                    headers: { 'Authorization': `ApiKey ${appId}` }
-                }
+                `${backendUrl}/notifications/${messageId}/read?subscriberId=${subscriberId}`,
+                { method: 'POST' }
             );
             fetchNotifications();
         } catch (error) {
-            console.error('[Novu Direct] Mark read failed:', error);
+            console.error('[Novu Proxy] Mark read failed:', error);
         }
-    }, [subscriberId, appId, fetchNotifications]);
+    }, [subscriberId, backendUrl, fetchNotifications]);
 
     const markAllAsRead = useCallback(async () => {
         if (!subscriberId) return;
         try {
             await fetch(
-                `https://api.novu.co/v1/subscribers/${subscriberId}/messages/markAll/read`,
-                {
-                    method: 'POST',
-                    headers: { 'Authorization': `ApiKey ${appId}` }
-                }
+                `${backendUrl}/notifications/mark-all-read?subscriberId=${subscriberId}`,
+                { method: 'POST' }
             );
             fetchNotifications();
         } catch (error) {
-            console.error('[Novu Direct] Mark all read failed:', error);
+            console.error('[Novu Proxy] Mark all read failed:', error);
         }
-    }, [subscriberId, appId, fetchNotifications]);
+    }, [subscriberId, backendUrl, fetchNotifications]);
 
     const removeNotification = useCallback(async (messageId: string) => {
         if (!subscriberId) return;
         try {
             await fetch(
-                `https://api.novu.co/v1/subscribers/${subscriberId}/messages/${messageId}`,
-                {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `ApiKey ${appId}` }
-                }
+                `${backendUrl}/notifications/${messageId}?subscriberId=${subscriberId}`,
+                { method: 'DELETE' }
             );
             fetchNotifications();
         } catch (error) {
-            console.error('[Novu Direct] Remove failed:', error);
+            console.error('[Novu Proxy] Remove failed:', error);
         }
-    }, [subscriberId, appId, fetchNotifications]);
+    }, [subscriberId, backendUrl, fetchNotifications]);
 
     return {
         notifications,
