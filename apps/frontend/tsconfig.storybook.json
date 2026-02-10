@@ -1,11 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "composite": true,
+    "noEmit": false,
     "emitDecoratorMetadata": true,
     "module": "esnext",
     "moduleResolution": "bundler"
   },
-  "exclude": ["components/**/*.spec.ts", "components/**/*.test.ts"],
+  "exclude": [
+    "components/**/*.spec.ts",
+    "components/**/*.test.ts"
+  ],
   "include": [
     "components/**/*.stories.ts",
     "components/**/*.stories.js",
