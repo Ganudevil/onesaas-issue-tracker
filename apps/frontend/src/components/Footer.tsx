@@ -11,16 +11,16 @@ export const Footer: React.FC = () => {
                     <div className="flex flex-col items-center space-y-3">
                         <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Follow us</h3>
                         <div className="flex space-x-6">
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-cyan-400 transition-colors transform hover:scale-110">
+                            <a href="https://www.linkedin.com/in/ganesh-devadiga-74175b191/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-cyan-400 transition-colors transform hover:scale-110">
                                 <Linkedin className="w-5 h-5" />
                             </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-cyan-400 transition-colors transform hover:scale-110">
+                            <a href="https://x.com/DevadigaGanesh7" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-cyan-400 transition-colors transform hover:scale-110">
                                 <Twitter className="w-5 h-5" />
                             </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-cyan-400 transition-colors transform hover:scale-110">
+                            <a href="https://www.instagram.com/_d_ghost._7/" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-cyan-400 transition-colors transform hover:scale-110">
                                 <Instagram className="w-5 h-5" />
                             </a>
-                            <a href="#" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-cyan-400 transition-colors transform hover:scale-110">
+                            <a href="https://github.com/Ganudevil" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-cyan-400 transition-colors transform hover:scale-110">
                                 <Github className="w-5 h-5" />
                             </a>
                         </div>
