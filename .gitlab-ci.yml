@@ -22,7 +22,7 @@ build-frontend:
   variables:
     NODE_OPTIONS: "--max-old-space-size=4096"
   cache:
-    key: frontend-${CI_COMMIT_REF_SLUG}-v3
+    key: frontend-${CI_COMMIT_REF_SLUG}-v4
     paths:
       - apps/frontend/node_modules/
   script:
