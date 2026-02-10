@@ -15,7 +15,7 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
     const [isLoading, setIsLoading] = useState(true);
     const [unseenCount, setUnseenCount] = useState(0);
 
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://onesaas-backend.onrender.com/api';
 
     const fetchNotifications = useCallback(async () => {
         if (!subscriberId) {
@@ -54,11 +54,12 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
         return () => clearInterval(interval);
     }, [fetchNotifications]);
 
-    const markAsRead = useCallback(async (messageId: string) => {
+    const markAsRead = useCallback(async (messageId: string | { messageId: string }) => {
         if (!subscriberId) return;
+        const id = typeof messageId === 'string' ? messageId : messageId.messageId;
         try {
             await fetch(
-                `${backendUrl}/notifications/${messageId}/read?subscriberId=${subscriberId}`,
+                `${backendUrl}/notifications/${id}/read?subscriberId=${subscriberId}`,
                 { method: 'POST' }
             );
             fetchNotifications();
@@ -80,11 +81,12 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
         }
     }, [subscriberId, backendUrl, fetchNotifications]);
 
-    const removeNotification = useCallback(async (messageId: string) => {
+    const removeNotification = useCallback(async (messageId: string | { messageId: string }) => {
         if (!subscriberId) return;
+        const id = typeof messageId === 'string' ? messageId : messageId.messageId;
         try {
             await fetch(
-                `${backendUrl}/notifications/${messageId}?subscriberId=${subscriberId}`,
+                `${backendUrl}/notifications/${id}?subscriberId=${subscriberId}`,
                 { method: 'DELETE' }
             );
             fetchNotifications();
