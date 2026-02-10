@@ -32,7 +32,7 @@ build-frontend:
     - npm run build
   artifacts:
     paths:
-      - apps/frontend/dist
+      - apps/frontend/.next
     expire_in: 1 hour
   only:
     - main
