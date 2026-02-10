@@ -17,8 +17,30 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
 
     // Ignore list for deleted notifications to prevent reappearance during polling
     const deletedIdsRef = useRef<Set<string>>(new Set());
+    const readIdsRef = useRef<Set<string>>(new Set());
 
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://onesaas-backend.onrender.com/api';
+
+    // Load from localStorage on mount
+    useEffect(() => {
+        try {
+            const deleted = JSON.parse(localStorage.getItem('novu_deleted_ids') || '[]');
+            const read = JSON.parse(localStorage.getItem('novu_read_ids') || '[]');
+            deletedIdsRef.current = new Set(deleted);
+            readIdsRef.current = new Set(read);
+        } catch (e) {
+            console.error('Failed to load notification state', e);
+        }
+    }, []);
+
+    const saveToStorage = useCallback(() => {
+        try {
+            localStorage.setItem('novu_deleted_ids', JSON.stringify(Array.from(deletedIdsRef.current)));
+            localStorage.setItem('novu_read_ids', JSON.stringify(Array.from(readIdsRef.current)));
+        } catch (e) {
+            console.error('Failed to save notification state', e);
+        }
+    }, []);
 
     const fetchNotifications = useCallback(async () => {
         if (!subscriberId) {
@@ -41,12 +63,17 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
             const data = await response.json();
             const rawMessages = data || [];
 
-            // Filter out locally deleted messages that might still be in the backend response
-            const messages = rawMessages.filter((m: any) =>
-                !deletedIdsRef.current.has(m._id) && !deletedIdsRef.current.has(m.id)
-            );
+            // Filter out locally deleted messages and apply read status
+            const messages = rawMessages
+                .filter((m: any) => !deletedIdsRef.current.has(m._id) && !deletedIdsRef.current.has(m.id))
+                .map((m: any) => {
+                    if (readIdsRef.current.has(m._id) || readIdsRef.current.has(m.id)) {
+                        return { ...m, read: true, seen: true };
+                    }
+                    return m;
+                });
 
-            console.log('[Novu Proxy] Fetched', messages.length, 'notifications (Ignored:', rawMessages.length - messages.length, ')');
+            console.log('[Novu Proxy] Fetched', messages.length, 'notifications');
             setNotifications(messages);
             setUnseenCount(messages.filter((m: any) => !m.seen).length);
         } catch (error) {
@@ -66,7 +93,10 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
         if (!subscriberId) return;
         const id = typeof messageId === 'string' ? messageId : messageId.messageId;
 
-        // Optimistic Update
+        // Optimistic Update & Persistence
+        readIdsRef.current.add(id);
+        saveToStorage();
+
         setNotifications(prev => prev.map(n => (n._id === id || (n as any).id === id) ? { ...n, read: true, seen: true } : n));
         setUnseenCount(prev => Math.max(0, prev - 1));
 
@@ -78,14 +108,18 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
             // fetchNotifications(); // Disabled to prevent race conditions reverting the optimistic UI
         } catch (error) {
             console.error('[Novu Proxy] Mark read failed:', error);
-            fetchNotifications(); // Revert
+            // No revert needed as we persist read status locally
         }
-    }, [subscriberId, backendUrl, fetchNotifications]);
+    }, [subscriberId, backendUrl, saveToStorage]);
 
     const markAllAsRead = useCallback(async () => {
         if (!subscriberId) return;
 
-        // Optimistic
+        // Optimistic & Persistence
+        const currentIds = notifications.map(n => n._id);
+        currentIds.forEach(id => readIdsRef.current.add(id));
+        saveToStorage();
+
         setNotifications(prev => prev.map(n => ({ ...n, read: true, seen: true })));
         setUnseenCount(0);
 
@@ -96,16 +130,17 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
             );
         } catch (error) {
             console.error('[Novu Proxy] Mark all read failed:', error);
-            fetchNotifications();
+            // fetchNotifications(); // No longer needed as state is persisted locally
         }
-    }, [subscriberId, backendUrl, fetchNotifications]);
+    }, [subscriberId, backendUrl, notifications, saveToStorage]);
 
     const removeNotification = useCallback(async (messageId: string | { messageId: string }) => {
         if (!subscriberId) return;
         const id = typeof messageId === 'string' ? messageId : messageId.messageId;
 
-        // Add to ignore list immediately
+        // Add to ignore list immediately & Save
         deletedIdsRef.current.add(id);
+        saveToStorage();
 
         // Optimistic Update
         setNotifications(prev => prev.filter(n => n._id !== id && (n as any).id !== id));
@@ -126,7 +161,7 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
             console.error('[Novu Proxy] Remove network error:', error);
             // Verify later
         }
-    }, [subscriberId, backendUrl]); // fetchNotifications logic handles the filtering now
+    }, [subscriberId, backendUrl, saveToStorage]); // fetchNotifications logic handles the filtering now
 
     return {
         notifications,
