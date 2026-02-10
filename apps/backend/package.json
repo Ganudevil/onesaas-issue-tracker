@@ -1,7 +1,7 @@
 {
   "name": "onesaas-backend",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.2",
+  "description": "OneSAAS Issue Tracker Backend",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
