@@ -128,7 +128,7 @@ export class IssuesService {
         this.logger.log(`Using fallback user context for Novu: ${JSON.stringify(user)}`);
       }
 
-      await this.novuService.triggerEvent('issue-created', tenantId, user, {
+      await this.novuService.triggerEvent('issue-created-blbs', tenantId, user, {
         issueId: issue.id,
         title: issue.title,
         description: issue.description ? issue.description.substring(0, 100) + '...' : '',
@@ -187,7 +187,7 @@ export class IssuesService {
       if (updateDto.status) {
         const targetUserId = updatedIssue.assignedTo || updatedIssue.createdBy;
         const user = await this.getUser(targetUserId, tenantId);
-        await this.novuService.triggerEvent('issue-status-changed', tenantId, user, {
+        await this.novuService.triggerEvent('issue-status-changed-al62', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
           status: updatedIssue.status,
@@ -201,7 +201,7 @@ export class IssuesService {
         const user = await this.getUser(updateDto.assignedTo, tenantId);
         this.logger.log(`Resolved assigned user: ${JSON.stringify(user)}`);
 
-        await this.novuService.triggerEvent('issue-assigned', tenantId, user, {
+        await this.novuService.triggerEvent('issue-assigned-d7el', tenantId, user, {
           issueId: updatedIssue.id,
           title: updatedIssue.title,
           url: process.env.FRONTEND_URL || 'https://frontend-three-brown-95.vercel.app'
@@ -302,7 +302,7 @@ export class IssuesService {
       const targetUserId = issue.assignedTo || issue.createdBy;
       const user = await this.getUser(targetUserId, tenantId);
 
-      await this.novuService.triggerEvent('comment-added', tenantId, user, {
+      await this.novuService.triggerEvent('comment-added-ez1b', tenantId, user, {
         issueId: issue.id,
         issueTitle: issue.title,
         comment: text,

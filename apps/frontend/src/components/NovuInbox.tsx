@@ -219,8 +219,8 @@ function CustomNotificationCenter() {
             {isOpen && (
                 <div
                     ref={containerRef}
-                    className="absolute right-0 top-12 w-[380px] max-w-[90vw] h-[550px] bg-white shadow-2xl rounded-lg border border-gray-200 overflow-hidden flex flex-col z-50 animate-in fade-in zoom-in-95 duration-200"
-                    style={{ maxHeight: 'calc(100vh - 100px)' }}
+                    className="fixed inset-0 sm:absolute sm:inset-auto sm:right-0 sm:top-12 w-full sm:w-[380px] h-full sm:h-[550px] bg-white shadow-2xl sm:rounded-lg border border-gray-200 overflow-hidden flex flex-col z-50 animate-in fade-in zoom-in-95 duration-200"
+                    style={{ maxHeight: '100vh' }} // Revised constraint
                 >
                     {/* Fixed Header */}
                     <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-white z-10 shrink-0">
