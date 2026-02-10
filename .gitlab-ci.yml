@@ -26,6 +26,7 @@ build-frontend:
     - cd apps/frontend
     - rm -rf node_modules
     - npm install --legacy-peer-deps
+    - npm install lightningcss-linux-x64-gnu --no-save || true
     - npm run build
   artifacts:
     paths:
