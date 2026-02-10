@@ -8,7 +8,6 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     optimizeFonts: false,
-    distDir: 'dist',
     env: {
         NEXT_PUBLIC_NOVU_APP_ID: process.env.NEXT_PUBLIC_NOVU_APP_ID,
     },
