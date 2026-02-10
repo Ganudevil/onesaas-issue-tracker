@@ -84,14 +84,19 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
     const removeNotification = useCallback(async (messageId: string | { messageId: string }) => {
         if (!subscriberId) return;
         const id = typeof messageId === 'string' ? messageId : messageId.messageId;
+        const url = `${backendUrl}/notifications/${id}?subscriberId=${subscriberId}`;
+        console.log('[Novu Proxy] Removing notification:', id, 'URL:', url);
         try {
-            await fetch(
-                `${backendUrl}/notifications/${id}?subscriberId=${subscriberId}`,
-                { method: 'DELETE' }
-            );
+            const res = await fetch(url, { method: 'DELETE' });
+            if (!res.ok) {
+                const text = await res.text();
+                console.error('[Novu Proxy] Remove failed:', res.status, text);
+            } else {
+                console.log('[Novu Proxy] Remove success');
+            }
             fetchNotifications();
         } catch (error) {
-            console.error('[Novu Proxy] Remove failed:', error);
+            console.error('[Novu Proxy] Remove network error:', error);
         }
     }, [subscriberId, backendUrl, fetchNotifications]);
 
