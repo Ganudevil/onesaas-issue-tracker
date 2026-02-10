@@ -1,5 +1,5 @@
 // Novu Direct API Helper - Bypasses broken Integration
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 
 interface NotificationMessage {
     _id: string;
@@ -14,6 +14,9 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
     const [notifications, setNotifications] = useState<NotificationMessage[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [unseenCount, setUnseenCount] = useState(0);
+
+    // Ignore list for deleted notifications to prevent reappearance during polling
+    const deletedIdsRef = useRef<Set<string>>(new Set());
 
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://onesaas-backend.onrender.com/api';
 
@@ -36,9 +39,14 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
             }
 
             const data = await response.json();
-            const messages = data || []; // Backend returns data.data already
+            const rawMessages = data || [];
 
-            console.log('[Novu Proxy] Fetched', messages.length, 'notifications');
+            // Filter out locally deleted messages that might still be in the backend response
+            const messages = rawMessages.filter((m: any) =>
+                !deletedIdsRef.current.has(m._id) && !deletedIdsRef.current.has(m.id)
+            );
+
+            console.log('[Novu Proxy] Fetched', messages.length, 'notifications (Ignored:', rawMessages.length - messages.length, ')');
             setNotifications(messages);
             setUnseenCount(messages.filter((m: any) => !m.seen).length);
         } catch (error) {
@@ -70,7 +78,7 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
             // fetchNotifications(); // Disabled to prevent race conditions reverting the optimistic UI
         } catch (error) {
             console.error('[Novu Proxy] Mark read failed:', error);
-            fetchNotifications(); // Revert on error
+            fetchNotifications(); // Revert
         }
     }, [subscriberId, backendUrl, fetchNotifications]);
 
@@ -96,6 +104,9 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
         if (!subscriberId) return;
         const id = typeof messageId === 'string' ? messageId : messageId.messageId;
 
+        // Add to ignore list immediately
+        deletedIdsRef.current.add(id);
+
         // Optimistic Update
         setNotifications(prev => prev.filter(n => n._id !== id && (n as any).id !== id));
 
@@ -105,15 +116,17 @@ export function useNovuDirectAPI(subscriberId: string | null, appId: string) {
             const res = await fetch(url, { method: 'DELETE' });
             if (!res.ok) {
                 console.error('[Novu Proxy] Remove failed:', res.status);
-                fetchNotifications(); // Revert
+                // We DO NOT revert here because if it's already gone (404), it's fine.
+                // If it's a 500, we might want to revert, but better to keep it hidden to avoid user confusion.
+                // Only revert if we are sure it wasn't deleted. For now, keep it hidden.
             } else {
                 console.log('[Novu Proxy] Remove success');
             }
         } catch (error) {
             console.error('[Novu Proxy] Remove network error:', error);
-            fetchNotifications(); // Revert
+            // Verify later
         }
-    }, [subscriberId, backendUrl, fetchNotifications]);
+    }, [subscriberId, backendUrl]); // fetchNotifications logic handles the filtering now
 
     return {
         notifications,
