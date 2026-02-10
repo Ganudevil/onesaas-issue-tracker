@@ -2,6 +2,7 @@
 import { Navbar } from '@/components/Navbar';
 import { IssueList } from '@/components/IssueList';
 import { useRouter } from 'next/navigation';
+import { Footer } from '@/components/Footer';
 
 export default function AssignedIssuesPage() {
     const router = useRouter();
@@ -12,11 +13,12 @@ export default function AssignedIssuesPage() {
     };
 
     return (
-        <div className="min-h-screen text-slate-100">
+        <div className="min-h-screen text-slate-100 flex flex-col">
             <Navbar />
-            <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
                 <IssueList onNavigate={handleNavigate} onlyMyIssues={true} />
             </div>
+            <Footer />
         </div>
     );
 }

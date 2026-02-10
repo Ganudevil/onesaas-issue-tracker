@@ -4,6 +4,7 @@ import { Navbar } from '@/components/Navbar';
 import { IssueForm } from '@/components/IssueForm';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
+import { Footer } from '@/components/Footer';
 
 export default function NewIssuePage() {
     const { role } = useAuthStore();
@@ -18,11 +19,12 @@ export default function NewIssuePage() {
     if (role === 'viewer') return null;
 
     return (
-        <div className="min-h-screen text-slate-100">
+        <div className="min-h-screen text-slate-100 flex flex-col">
             <Navbar />
-            <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
                 <IssueForm />
             </div>
+            <Footer />
         </div>
     );
 }
